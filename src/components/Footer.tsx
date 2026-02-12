@@ -31,7 +31,7 @@ export default function Footer() {
             kan hjelpe din virksomhet med å ta steget inn i fremtiden.
           </p>
           <a
-            href="mailto:abdulsamad@sheikh.as"
+            href="mailto:hei@mashpartners.no"
             className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-gradient-to-r from-mash-gold-dark via-mash-gold to-mash-gold-light text-mash-black font-semibold text-sm tracking-wide hover:shadow-lg hover:shadow-mash-gold/20 transition-all duration-300"
           >
             <Mail size={16} />
@@ -48,10 +48,10 @@ export default function Footer() {
               <div>
                 <h4 className="text-sm font-medium mb-1">E-post</h4>
                 <a
-                  href="mailto:abdulsamad@sheikh.as"
+                  href="mailto:hei@mashpartners.no"
                   className="text-sm text-white/40 hover:text-mash-gold transition-colors"
                 >
-                  abdulsamad@sheikh.as
+                  hei@mashpartners.no
                 </a>
               </div>
             </div>
@@ -63,10 +63,10 @@ export default function Footer() {
               <div>
                 <h4 className="text-sm font-medium mb-1">Telefon</h4>
                 <a
-                  href="tel:+4746961676"
+                  href="tel:+4761222222"
                   className="text-sm text-white/40 hover:text-mash-gold transition-colors"
                 >
-                  +47 469 61 676
+                  +47 612 22 222
                 </a>
               </div>
             </div>
