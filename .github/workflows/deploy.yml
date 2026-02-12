@@ -39,12 +39,12 @@ jobs:
       uses: actions/configure-pages@v4
       
     - name: Add .nojekyll file
-        run: touch out/.nojekyll
+      run: touch out/.nojekyll
         
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./out
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ./out
         
     - name: Deploy to GitHub Pages
       id: deployment
