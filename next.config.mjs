@@ -5,8 +5,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  basePath: process.env.NODE_ENV === 'production' ? '/mash' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/mash' : '',
+  // Remove basePath and assetPrefix since we're using a custom domain
 };
 
 export default nextConfig;
