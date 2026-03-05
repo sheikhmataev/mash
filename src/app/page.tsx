@@ -1,19 +1,47 @@
-import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import Services from "@/components/Services";
-import About from "@/components/About";
-import Team from "@/components/Team";
-import Footer from "@/components/Footer";
+import Navigation from '@/components/Navigation';
+import CustomCursor from '@/components/CustomCursor';
+import ParticleOverlay from '@/components/ParticleOverlay';
+import SectionDivider from '@/components/SectionDivider';
+import Hero from '@/sections/Hero';
+import Capabilities from '@/sections/Capabilities';
+import HowWeThink from '@/sections/HowWeThink';
+import Projects from '@/sections/Projects';
+import Process from '@/sections/Process';
+import AILab from '@/sections/AILab';
+import TechStack from '@/sections/TechStack';
+import Trust from '@/sections/Trust';
+import About from '@/sections/About';
+import CTA from '@/sections/CTA';
+import Footer from '@/sections/Footer';
 
 export default function Home() {
   return (
-    <main className="relative">
-      <Navbar />
-      <Hero />
-      <Services />
-      <About />
-      <Team />
+    <>
+      <CustomCursor />
+      <ParticleOverlay />
+      <Navigation />
+      <main>
+        <Hero />
+        <SectionDivider />
+        <Capabilities />
+        <SectionDivider flip />
+        <HowWeThink />
+        <SectionDivider />
+        <Projects />
+        <SectionDivider flip />
+        <Process />
+        <SectionDivider />
+        <AILab />
+        <SectionDivider flip />
+        <TechStack />
+        <SectionDivider />
+        <Trust />
+        <SectionDivider flip />
+        <About />
+        <SectionDivider />
+        <CTA />
+      </main>
       <Footer />
-    </main>
+    </>
   );
 }

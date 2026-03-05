@@ -1,50 +1,28 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Space_Grotesk, Inter } from "next/font/google";
+import logo2 from "./Logo2.png";
 import "./globals.css";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
 });
 
 export const metadata: Metadata = {
-  title: "Mash Partners AS | Digitalisering, AI & Automatisering",
+  title: "Mash Partners — Building Intelligent Digital Systems",
   description:
-    "Vi leverer skreddersydde løsninger innen digitalisering, generativ AI og automatisering for moderne bedrifter. Basert i Lillehammer, Norge.",
-  keywords: [
-    "digitalisering",
-    "AI",
-    "generativ AI",
-    "automatisering",
-    "konsulentselskap",
-    "Norge",
-    "Lillehammer",
-  ],
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
-  },
-  openGraph: {
-    title: "Mash Partners AS | Fremtidens Teknologi. I Dag.",
-    description:
-      "Skreddersydde løsninger innen digitalisering, generativ AI og automatisering.",
-    url: "https://mashpartners.no",
-    siteName: "Mash Partners AS",
-    locale: "nb_NO",
-    type: "website",
+    "Technology partner building the future. AI systems, automation, generative technology, and premium digital experiences.",
+  icons: {
+    icon: logo2.src,
+    shortcut: logo2.src,
+    apple: logo2.src,
   },
 };
 
@@ -54,9 +32,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="no" className="scroll-smooth">
+    <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-mash-black text-white`}
+        className={`${spaceGrotesk.variable} ${inter.variable} antialiased`}
       >
         {children}
       </body>
