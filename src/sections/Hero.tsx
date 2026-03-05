@@ -2,13 +2,19 @@
 
 import { useRef, useEffect, useState } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import SplineHero from '@/components/SplineHero';
+import dynamic from 'next/dynamic';
+
+const SplineHero = dynamic(() => import('@/components/SplineHero'), {
+  ssr: false,
+});
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(
+    () => (typeof window !== 'undefined' ? window.innerWidth < 768 : false),
+  );
 
   const springConfig = { damping: 30, stiffness: 80 };
   const x = useSpring(mouseX, springConfig);
@@ -20,15 +26,19 @@ export default function Hero() {
   const orbY = useTransform(y, (v) => v * -0.01);
 
   useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
     const handleMouse = (e: MouseEvent) => {
       const cx = window.innerWidth / 2;
       const cy = window.innerHeight / 2;
       mouseX.set(e.clientX - cx);
       mouseY.set(e.clientY - cy);
     };
+    window.addEventListener('resize', handleResize, { passive: true });
     window.addEventListener('mousemove', handleMouse);
-    return () => window.removeEventListener('mousemove', handleMouse);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouse);
+    };
   }, [mouseX, mouseY]);
 
   return (
@@ -78,7 +88,7 @@ export default function Hero() {
       {/* Spline 3D scene */}
       {!isMobile && (
         <div className="absolute inset-0 z-0 opacity-70">
-          <SplineHero className="h-full w-full" />
+          <SplineHero className="h-full w-full" deferLoad />
         </div>
       )}
 

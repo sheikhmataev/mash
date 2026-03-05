@@ -1,59 +1,11 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { gsap, ScrollTrigger } from '@/lib/animations';
 import { PHILOSOPHY } from '@/lib/constants';
 
 export default function HowWeThink() {
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-    if (!sectionRef.current) return;
-
-    const pillars = sectionRef.current.querySelectorAll('.pillar');
-    const lines = sectionRef.current.querySelectorAll('.connect-line');
-
-    pillars.forEach((pillar, i) => {
-      gsap.from(pillar, {
-        scrollTrigger: {
-          trigger: pillar,
-          start: 'top 85%',
-          toggleActions: 'play none none none',
-        },
-        y: 60,
-        opacity: 0,
-        duration: 0.9,
-        delay: i * 0.2,
-        ease: 'power3.out',
-      });
-    });
-
-    lines.forEach((line, i) => {
-      gsap.from(line, {
-        scrollTrigger: {
-          trigger: line,
-          start: 'top 85%',
-          toggleActions: 'play none none none',
-        },
-        scaleX: 0,
-        opacity: 0,
-        duration: 0.8,
-        delay: 0.3 + i * 0.2,
-        ease: 'power2.out',
-      });
-    });
-
-    return () => {
-      ScrollTrigger.getAll().forEach((t) => {
-        if (sectionRef.current?.contains(t.trigger as Element)) t.kill();
-      });
-    };
-  }, []);
-
   return (
-    <section ref={sectionRef} className="section-padding relative overflow-hidden">
+    <section className="section-padding relative overflow-hidden">
       {/* Background glow */}
       <div className="absolute inset-0 opacity-30">
         <div
@@ -86,7 +38,13 @@ export default function HowWeThink() {
         <div className="flex flex-col items-center gap-0 md:flex-row md:gap-0">
           {PHILOSOPHY.map((item, i) => (
             <div key={item.title} className="flex items-center">
-              <div className="pillar group glass glow-border relative w-full p-8 transition-all duration-500 hover:bg-[rgba(23,26,33,0.8)] md:w-[320px]">
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.7, delay: i * 0.12, ease: [0.25, 0.1, 0.25, 1] }}
+                className="group glass glow-border relative w-full p-8 transition-all duration-500 hover:bg-[rgba(23,26,33,0.8)] md:w-[320px]"
+              >
                 <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-accent-violet/20 bg-accent-violet/5 font-[family-name:var(--font-space-grotesk)] text-sm font-bold text-accent-violet">
                   {String(i + 1).padStart(2, '0')}
                 </div>
@@ -96,9 +54,15 @@ export default function HowWeThink() {
                 <p className="mt-3 text-sm leading-relaxed text-text-secondary">
                   {item.description}
                 </p>
-              </div>
+              </motion.div>
               {i < PHILOSOPHY.length - 1 && (
-                <div className="connect-line mx-2 hidden h-[1px] w-12 origin-left bg-gradient-to-r from-accent-violet/30 to-accent-blue/20 md:block" />
+                <motion.div
+                  initial={{ opacity: 0, scaleX: 0 }}
+                  whileInView={{ opacity: 1, scaleX: 1 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.55, delay: 0.22 + i * 0.12 }}
+                  className="mx-2 hidden h-[1px] w-12 origin-left bg-gradient-to-r from-accent-violet/30 to-accent-blue/20 md:block"
+                />
               )}
             </div>
           ))}

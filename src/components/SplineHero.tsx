@@ -20,13 +20,16 @@ export default function SplineHero({
   scene = PLACEHOLDER_SCENE,
   className = '',
   playOnlyWhenInView = false,
+  deferLoad = false,
 }: {
   scene?: string;
   className?: string;
   playOnlyWhenInView?: boolean;
+  deferLoad?: boolean;
 }) {
   const [loaded, setLoaded] = useState(false);
   const [isInView, setIsInView] = useState(!playOnlyWhenInView);
+  const [shouldLoad, setShouldLoad] = useState(!deferLoad);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isInViewRef = useRef(isInView);
@@ -41,6 +44,24 @@ export default function SplineHero({
   useEffect(() => {
     isInViewRef.current = isInView;
   }, [isInView]);
+
+  useEffect(() => {
+    if (!deferLoad) return;
+    const element = containerRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        window.setTimeout(() => setShouldLoad(true), 120);
+        observer.disconnect();
+      },
+      { rootMargin: '200px 0px', threshold: 0.01 },
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [deferLoad]);
 
   useEffect(() => {
     if (!playOnlyWhenInView) return;
@@ -62,6 +83,7 @@ export default function SplineHero({
   }, [playOnlyWhenInView]);
 
   useEffect(() => {
+    if (!shouldLoad) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -114,7 +136,7 @@ export default function SplineHero({
         appRef.current = null;
       }
     };
-  }, [normalizedScene]);
+  }, [normalizedScene, shouldLoad, playOnlyWhenInView]);
 
   useEffect(() => {
     if (!playOnlyWhenInView || !appRef.current) return;

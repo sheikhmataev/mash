@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { PROJECTS } from '@/lib/constants';
 
 export default function Projects() {
@@ -149,12 +150,14 @@ export default function Projects() {
               onMouseLeave={handleCardMouseLeave}
               className="glass group relative p-6 transition-all duration-500 hover:shadow-[0_0_40px_rgba(123,97,255,0.1)]"
             >
-              <div className="mb-5 aspect-[16/10] overflow-hidden rounded-lg border border-white/5 bg-bg-deep/80">
+              <div className="relative mb-5 aspect-[16/10] overflow-hidden rounded-lg border border-white/5 bg-bg-deep/80">
                 {!missingPreviewIndices.includes(i) ? (
-                  <img
+                  <Image
                     src={project.previewImage}
                     alt={`${project.title} preview`}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                     loading="lazy"
                     onError={() => markPreviewMissing(i)}
                   />

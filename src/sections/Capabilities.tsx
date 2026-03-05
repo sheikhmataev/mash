@@ -1,20 +1,34 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { gsap, ScrollTrigger } from '@/lib/animations';
+import { gsap } from '@/lib/animations';
 import { CAPABILITIES } from '@/lib/constants';
 import VideoPlaceholder from '@/components/VideoPlaceholder';
 
 export default function Capabilities() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [enablePinnedScroll, setEnablePinnedScroll] = useState(false);
 
   useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
+    const updateMode = () => {
+      const desktop = window.matchMedia('(min-width: 1024px)').matches;
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      setEnablePinnedScroll(desktop && !reduced);
+    };
+
+    updateMode();
+    window.addEventListener('resize', updateMode);
+    return () => window.removeEventListener('resize', updateMode);
+  }, []);
+
+  useEffect(() => {
+    if (!enablePinnedScroll) return;
     if (!sectionRef.current || !scrollRef.current) return;
 
     const scrollWidth = scrollRef.current.scrollWidth - window.innerWidth;
+    if (scrollWidth <= 0) return;
 
     const tween = gsap.to(scrollRef.current, {
       x: -scrollWidth,
@@ -34,7 +48,7 @@ export default function Capabilities() {
       tween.scrollTrigger?.kill();
       tween.kill();
     };
-  }, []);
+  }, [enablePinnedScroll]);
 
   return (
     <section
@@ -69,8 +83,10 @@ export default function Capabilities() {
         {/* Horizontal scroll track */}
         <div
           ref={scrollRef}
-          className="flex min-h-screen items-center gap-8 px-6 pt-24 lg:px-12"
-          style={{ width: `${CAPABILITIES.length * 420 + 200}px` }}
+          className={`flex min-h-screen items-center gap-8 px-6 pt-24 lg:px-12 ${
+            enablePinnedScroll ? '' : 'overflow-x-auto'
+          }`}
+          style={{ width: enablePinnedScroll ? `${CAPABILITIES.length * 420 + 200}px` : 'auto' }}
         >
           {/* Spacer for header */}
           <div className="w-[120px] shrink-0" />

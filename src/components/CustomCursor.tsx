@@ -19,6 +19,8 @@ export default function CustomCursor() {
     if (typeof window === 'undefined') return;
     if (window.innerWidth <= 768) return;
 
+    const selector = 'a, button, [data-cursor-grow]';
+
     const moveCursor = (e: MouseEvent) => {
       cursorX.set(e.clientX - 16);
       cursorY.set(e.clientY - 16);
@@ -26,31 +28,27 @@ export default function CustomCursor() {
 
     const grow = () => scale.set(2.5);
     const shrink = () => scale.set(1);
+    const handleMouseOver = (e: MouseEvent) => {
+      const target = e.target as Element | null;
+      if (target?.closest(selector)) {
+        grow();
+      }
+    };
+    const handleMouseOut = (e: MouseEvent) => {
+      const target = e.target as Element | null;
+      if (target?.closest(selector)) {
+        shrink();
+      }
+    };
 
     window.addEventListener('mousemove', moveCursor);
-
-    const interactiveEls = document.querySelectorAll('a, button, [data-cursor-grow]');
-    interactiveEls.forEach((el) => {
-      el.addEventListener('mouseenter', grow);
-      el.addEventListener('mouseleave', shrink);
-    });
-
-    const observer = new MutationObserver(() => {
-      const els = document.querySelectorAll('a, button, [data-cursor-grow]');
-      els.forEach((el) => {
-        el.addEventListener('mouseenter', grow);
-        el.addEventListener('mouseleave', shrink);
-      });
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
+    document.addEventListener('mouseover', handleMouseOver);
+    document.addEventListener('mouseout', handleMouseOut);
 
     return () => {
       window.removeEventListener('mousemove', moveCursor);
-      observer.disconnect();
-      interactiveEls.forEach((el) => {
-        el.removeEventListener('mouseenter', grow);
-        el.removeEventListener('mouseleave', shrink);
-      });
+      document.removeEventListener('mouseover', handleMouseOver);
+      document.removeEventListener('mouseout', handleMouseOut);
     };
   }, [cursorX, cursorY, scale]);
 

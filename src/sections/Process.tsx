@@ -2,7 +2,11 @@
 
 import { motion } from 'framer-motion';
 import VideoPlaceholder from '@/components/VideoPlaceholder';
-import SplineHero from '@/components/SplineHero';
+import dynamic from 'next/dynamic';
+
+const SplineHero = dynamic(() => import('@/components/SplineHero'), {
+  ssr: false,
+});
 
 export default function Process() {
   return (
@@ -51,6 +55,7 @@ export default function Process() {
               scene="/Process.splinecode"
               className="h-full w-full"
               playOnlyWhenInView
+              deferLoad
             />
           </div>
         </motion.div>

@@ -1,6 +1,5 @@
 import Navigation from '@/components/Navigation';
-import CustomCursor from '@/components/CustomCursor';
-import ParticleOverlay from '@/components/ParticleOverlay';
+import DeferredVisualEffects from '@/components/DeferredVisualEffects';
 import SectionDivider from '@/components/SectionDivider';
 import Hero from '@/sections/Hero';
 import Capabilities from '@/sections/Capabilities';
@@ -17,8 +16,7 @@ import Footer from '@/sections/Footer';
 export default function Home() {
   return (
     <>
-      <CustomCursor />
-      <ParticleOverlay />
+      <DeferredVisualEffects />
       <Navigation />
       <main>
         <Hero />

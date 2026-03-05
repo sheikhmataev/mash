@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
-import logo2 from "./Logo2.png";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -20,9 +19,9 @@ export const metadata: Metadata = {
   description:
     "Technology partner building the future. AI systems, automation, generative technology, and premium digital experiences.",
   icons: {
-    icon: logo2.src,
-    shortcut: logo2.src,
-    apple: logo2.src,
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
 };
 

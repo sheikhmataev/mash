@@ -72,21 +72,21 @@ export const PROJECTS = [
     tags: ['Luxury', 'E-Commerce', 'Brand'],
     description: 'Fine timekeeping storefront with premium visual language and polished product storytelling.',
     url: 'https://sheikhmataev.github.io/kronomods/',
-    previewImage: '/assets/kronomods.png',
+    previewImage: '/assets/kronomods.webp',
   },
   {
     title: 'Lillehammer Moske',
     tags: ['Community', 'Information', 'Services'],
     description: 'Community-first website for prayer times, Ramadan updates, programs, and donations.',
     url: 'https://lillehammermoske.no/',
-    previewImage: '/assets/lillehammer-moske.png',
+    previewImage: '/assets/lillehammer-moske.webp',
   },
   {
     title: 'Lillehammer Taxi 06565',
     tags: ['Transport', 'Booking', 'Local Business'],
     description: 'Modern taxi website focused on quick booking flow, service overview, and trust messaging.',
     url: 'https://sheikhmataev.github.io/06565/',
-    previewImage: '/assets/lillehammer-taxi.png',
+    previewImage: '/assets/lillehammer-taxi.webp',
   },
 ] as const;
 
