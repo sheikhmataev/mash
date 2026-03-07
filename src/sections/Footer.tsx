@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import logo2 from '@/app/Logo2.png';
 
 const socials = [
   {
@@ -42,8 +41,11 @@ export default function Footer() {
           <a href="#" className="flex items-center gap-2">
             <div className="h-8 w-12 overflow-hidden rounded-md bg-white/95 p-1 shadow-[0_0_12px_rgba(255,255,255,0.18)]">
               <Image
-                src={logo2}
+                src="/assets/logo-mark.webp"
                 alt="Mash Partners logo"
+                width={96}
+                height={64}
+                sizes="96px"
                 className="h-full w-full scale-[2.15] object-contain"
               />
             </div>

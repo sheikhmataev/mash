@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { NAV_LINKS } from '@/lib/constants';
-import logo2 from '@/app/Logo2.png';
 
 export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
@@ -32,8 +31,11 @@ export default function Navigation() {
           <a href="#" className="flex items-center gap-3">
             <div className="h-8 w-12 overflow-hidden rounded-md bg-white/95 p-1 shadow-[0_0_12px_rgba(255,255,255,0.18)] sm:h-9 sm:w-14">
               <Image
-                src={logo2}
+                src="/assets/logo-mark.webp"
                 alt="Mash Partners logo"
+                width={112}
+                height={75}
+                sizes="112px"
                 priority
                 className="h-full w-full scale-[2.15] object-contain"
               />
