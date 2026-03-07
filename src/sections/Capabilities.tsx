@@ -14,8 +14,9 @@ export default function Capabilities() {
   useEffect(() => {
     const updateMode = () => {
       const desktop = window.matchMedia('(min-width: 1024px)').matches;
+      const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      setEnablePinnedScroll(desktop && !reduced);
+      setEnablePinnedScroll(desktop && !coarsePointer && !reduced);
     };
 
     updateMode();
@@ -83,13 +84,15 @@ export default function Capabilities() {
         {/* Horizontal scroll track */}
         <div
           ref={scrollRef}
-          className={`flex min-h-screen items-center gap-8 px-6 pt-24 lg:px-12 ${
-            enablePinnedScroll ? '' : 'overflow-x-auto'
+          className={`flex min-h-screen items-center gap-6 px-6 pt-24 lg:px-12 ${
+            enablePinnedScroll
+              ? ''
+              : 'mobile-swipe-track overflow-x-auto snap-x snap-mandatory touch-pan-x overscroll-x-contain'
           }`}
           style={{ width: enablePinnedScroll ? `${CAPABILITIES.length * 420 + 200}px` : 'auto' }}
         >
           {/* Spacer for header */}
-          <div className="w-[120px] shrink-0" />
+          <div className={`${enablePinnedScroll ? 'w-[120px]' : 'w-1'} shrink-0`} />
 
           {CAPABILITIES.map((cap, i) => (
             <motion.div
@@ -98,7 +101,9 @@ export default function Capabilities() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.7 }}
-              className="group glass glow-border relative w-[360px] shrink-0 overflow-hidden p-8 transition-all duration-500 hover:bg-[rgba(23,26,33,0.8)]"
+              className={`group glass glow-border relative shrink-0 overflow-hidden p-8 transition-all duration-500 hover:bg-[rgba(23,26,33,0.8)] ${
+                enablePinnedScroll ? 'w-[360px]' : 'w-[85vw] max-w-[360px] snap-start'
+              }`}
             >
               <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl border border-accent-violet/20 bg-accent-violet/5 text-2xl text-accent-violet transition-all duration-500 group-hover:bg-accent-violet/10 group-hover:shadow-[0_0_20px_rgba(123,97,255,0.15)]">
                 {cap.icon}

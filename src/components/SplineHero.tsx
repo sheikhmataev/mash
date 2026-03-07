@@ -21,11 +21,13 @@ export default function SplineHero({
   className = '',
   playOnlyWhenInView = false,
   deferLoad = false,
+  mobileFitContain = false,
 }: {
   scene?: string;
   className?: string;
   playOnlyWhenInView?: boolean;
   deferLoad?: boolean;
+  mobileFitContain?: boolean;
 }) {
   const [loaded, setLoaded] = useState(false);
   const [isInView, setIsInView] = useState(!playOnlyWhenInView);
@@ -147,21 +149,6 @@ export default function SplineHero({
     }
   }, [isInView, playOnlyWhenInView]);
 
-  useEffect(() => {
-    const interval = window.setInterval(() => {
-      const viewer = document.querySelector('spline-viewer');
-      const shadowRoot = (viewer as HTMLElement | null)?.shadowRoot;
-      const logo = shadowRoot?.querySelector('#logo');
-
-      if (logo) {
-        logo.remove();
-        window.clearInterval(interval);
-      }
-    }, 500);
-
-    return () => window.clearInterval(interval);
-  }, []);
-
   return (
     <div ref={containerRef} className={`relative ${className}`}>
       {!loaded && (
@@ -174,6 +161,7 @@ export default function SplineHero({
         style={{
           width: '100%',
           height: '100%',
+          objectFit: mobileFitContain ? 'contain' : 'cover',
           opacity: loaded ? 1 : 0,
           transition: 'opacity 1s ease',
         }}

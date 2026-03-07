@@ -10,7 +10,7 @@ const SplineHero = dynamic(() => import('@/components/SplineHero'), {
 
 export default function Process() {
   return (
-    <section id="process" className="section-padding relative overflow-hidden">
+    <section id="process" className="section-padding relative">
       <VideoPlaceholder gradient="default" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-12">
@@ -50,12 +50,13 @@ export default function Process() {
           transition={{ delay: 0.25, duration: 0.9 }}
           className="glass glow-border overflow-hidden rounded-2xl"
         >
-          <div className="relative h-[420px] w-full md:h-[520px]">
+          <div className="relative h-[320px] max-h-[72vh] w-full sm:h-[400px] md:h-[520px]">
             <SplineHero
               scene="/Process.splinecode"
               className="h-full w-full"
               playOnlyWhenInView
               deferLoad
+              mobileFitContain
             />
           </div>
         </motion.div>

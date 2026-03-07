@@ -224,3 +224,11 @@ a {
   animation: gradient-shift 12s ease infinite;
   background-size: 200% 200%;
 }
+
+.mobile-swipe-track {
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-swipe-track::-webkit-scrollbar {
+  display: none;
+}

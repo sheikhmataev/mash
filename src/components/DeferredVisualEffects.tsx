@@ -6,6 +6,15 @@ import ParticleOverlay from '@/components/ParticleOverlay';
 
 export default function DeferredVisualEffects() {
   const [ready, setReady] = useState(false);
+  const [isMobile, setIsMobile] = useState(
+    () => (typeof window !== 'undefined' ? window.innerWidth < 768 : false),
+  );
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', onResize, { passive: true });
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   useEffect(() => {
     let timerId: ReturnType<typeof setTimeout> | null = null;
@@ -38,7 +47,7 @@ export default function DeferredVisualEffects() {
   return (
     <>
       <CustomCursor />
-      <ParticleOverlay />
+      {!isMobile && <ParticleOverlay />}
     </>
   );
 }

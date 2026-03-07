@@ -1,9 +1,20 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { PHILOSOPHY } from '@/lib/constants';
 
 export default function HowWeThink() {
+  const [isMobile, setIsMobile] = useState(
+    () => (typeof window !== 'undefined' ? window.innerWidth < 768 : false),
+  );
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', onResize, { passive: true });
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   return (
     <section className="section-padding relative overflow-hidden">
       {/* Background glow */}
@@ -28,7 +39,7 @@ export default function HowWeThink() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.1, duration: 0.8 }}
+            transition={{ delay: 0.08, duration: isMobile ? 0.45 : 0.8 }}
             className="mt-3 font-[family-name:var(--font-space-grotesk)] text-3xl font-bold text-text-primary md:text-5xl"
           >
             How We Think
@@ -39,10 +50,14 @@ export default function HowWeThink() {
           {PHILOSOPHY.map((item, i) => (
             <div key={item.title} className="flex items-center">
               <motion.div
-                initial={{ opacity: 0, y: 50 }}
+                initial={{ opacity: 0, y: isMobile ? 20 : 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.7, delay: i * 0.12, ease: [0.25, 0.1, 0.25, 1] }}
+                viewport={isMobile ? { once: true, amount: 0.12 } : { once: true, margin: '-40px' }}
+                transition={{
+                  duration: isMobile ? 0.42 : 0.7,
+                  delay: isMobile ? i * 0.05 : i * 0.12,
+                  ease: [0.25, 0.1, 0.25, 1],
+                }}
                 className="group glass glow-border relative w-full p-8 transition-all duration-500 hover:bg-[rgba(23,26,33,0.8)] md:w-[320px]"
               >
                 <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-accent-violet/20 bg-accent-violet/5 font-[family-name:var(--font-space-grotesk)] text-sm font-bold text-accent-violet">
@@ -59,8 +74,11 @@ export default function HowWeThink() {
                 <motion.div
                   initial={{ opacity: 0, scaleX: 0 }}
                   whileInView={{ opacity: 1, scaleX: 1 }}
-                  viewport={{ once: true, margin: '-40px' }}
-                  transition={{ duration: 0.55, delay: 0.22 + i * 0.12 }}
+                  viewport={isMobile ? { once: true, amount: 0.12 } : { once: true, margin: '-40px' }}
+                  transition={{
+                    duration: isMobile ? 0.35 : 0.55,
+                    delay: isMobile ? 0.1 + i * 0.05 : 0.22 + i * 0.12,
+                  }}
                   className="mx-2 hidden h-[1px] w-12 origin-left bg-gradient-to-r from-accent-violet/30 to-accent-blue/20 md:block"
                 />
               )}

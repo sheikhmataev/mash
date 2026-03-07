@@ -27,19 +27,24 @@ export default function Hero() {
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize, { passive: true });
+    if (isMobile) {
+      return () => window.removeEventListener('resize', handleResize);
+    }
+
     const handleMouse = (e: MouseEvent) => {
       const cx = window.innerWidth / 2;
       const cy = window.innerHeight / 2;
       mouseX.set(e.clientX - cx);
       mouseY.set(e.clientY - cy);
     };
-    window.addEventListener('resize', handleResize, { passive: true });
+
     window.addEventListener('mousemove', handleMouse);
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouse);
     };
-  }, [mouseX, mouseY]);
+  }, [isMobile, mouseX, mouseY]);
 
   return (
     <section
