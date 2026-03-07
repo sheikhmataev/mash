@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 import { NAV_LINKS } from '@/lib/constants';
 
 export default function Navigation() {
@@ -28,7 +29,7 @@ export default function Navigation() {
         }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 lg:px-12">
-          <a href="#" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3" aria-label="Go to homepage">
             <div className="h-8 w-12 overflow-hidden rounded-md bg-white/95 p-1 shadow-[0_0_12px_rgba(255,255,255,0.18)] sm:h-9 sm:w-14">
               <Image
                 src="/assets/logo-mark.webp"
@@ -43,7 +44,7 @@ export default function Navigation() {
             <span className="hidden font-[family-name:var(--font-space-grotesk)] text-lg font-semibold tracking-tight text-text-primary sm:inline">
               Mash Partners
             </span>
-          </a>
+          </Link>
 
           <div className="hidden items-center gap-8 md:flex">
             {NAV_LINKS.map((link) => (

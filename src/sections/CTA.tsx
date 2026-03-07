@@ -68,9 +68,30 @@ export default function CTA() {
               </label>
               <input
                 id="name"
+                name="name"
                 type="text"
+                required
+                autoComplete="name"
                 className="w-full rounded-lg border border-white/5 bg-bg-deep/60 px-4 py-3 text-sm text-text-primary outline-none transition-all duration-300 placeholder:text-text-muted focus:border-accent-violet/30 focus:shadow-[0_0_20px_rgba(123,97,255,0.1)]"
                 placeholder="Your name"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="email"
+                className="mb-1.5 block text-xs tracking-wider text-text-muted uppercase"
+              >
+                Email
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                className="w-full rounded-lg border border-white/5 bg-bg-deep/60 px-4 py-3 text-sm text-text-primary outline-none transition-all duration-300 placeholder:text-text-muted focus:border-accent-violet/30 focus:shadow-[0_0_20px_rgba(123,97,255,0.1)]"
+                placeholder="you@company.com"
               />
             </div>
 
@@ -83,7 +104,9 @@ export default function CTA() {
               </label>
               <input
                 id="company"
+                name="company"
                 type="text"
+                autoComplete="organization"
                 className="w-full rounded-lg border border-white/5 bg-bg-deep/60 px-4 py-3 text-sm text-text-primary outline-none transition-all duration-300 placeholder:text-text-muted focus:border-accent-violet/30 focus:shadow-[0_0_20px_rgba(123,97,255,0.1)]"
                 placeholder="Your company"
               />
@@ -98,10 +121,28 @@ export default function CTA() {
               </label>
               <textarea
                 id="vision"
+                name="vision"
                 rows={4}
+                required
                 className="w-full resize-none rounded-lg border border-white/5 bg-bg-deep/60 px-4 py-3 text-sm text-text-primary outline-none transition-all duration-300 placeholder:text-text-muted focus:border-accent-violet/30 focus:shadow-[0_0_20px_rgba(123,97,255,0.1)]"
                 placeholder="Describe your vision..."
               />
+            </div>
+
+            <div className="rounded-lg border border-white/8 bg-bg-deep/50 p-3">
+              <label htmlFor="consent" className="flex items-start gap-3 text-xs leading-relaxed text-text-secondary">
+                <input
+                  id="consent"
+                  name="consent"
+                  type="checkbox"
+                  required
+                  className="mt-0.5 h-4 w-4 accent-accent-violet"
+                />
+                <span>
+                  I consent to Mash Partners storing and processing my contact details to respond to my request.
+                  Read our <a href="/privacy" className="text-accent-violet hover:underline">Privacy Policy</a> and <a href="/cookies" className="text-accent-violet hover:underline">Cookie Policy</a>.
+                </span>
+              </label>
             </div>
 
             <button
@@ -112,7 +153,7 @@ export default function CTA() {
               <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
             </button>
             {submitted && (
-              <p className="text-center text-xs tracking-wide text-accent-cyan">
+              <p className="text-center text-xs tracking-wide text-accent-cyan" role="status" aria-live="polite">
                 Thanks! We received your message and will get back to you.
               </p>
             )}
