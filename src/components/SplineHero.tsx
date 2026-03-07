@@ -32,6 +32,9 @@ export default function SplineHero({
   const [loaded, setLoaded] = useState(false);
   const [isInView, setIsInView] = useState(!playOnlyWhenInView);
   const [shouldLoad, setShouldLoad] = useState(!deferLoad);
+  const [isMobile, setIsMobile] = useState(
+    () => (typeof window !== 'undefined' ? window.innerWidth < 768 : false),
+  );
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isInViewRef = useRef(isInView);
@@ -46,6 +49,12 @@ export default function SplineHero({
   useEffect(() => {
     isInViewRef.current = isInView;
   }, [isInView]);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', onResize, { passive: true });
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   useEffect(() => {
     if (!deferLoad) return;
@@ -161,7 +170,8 @@ export default function SplineHero({
         style={{
           width: '100%',
           height: '100%',
-          objectFit: mobileFitContain ? 'contain' : 'cover',
+          transform: mobileFitContain && isMobile ? 'scale(0.9)' : 'scale(1)',
+          transformOrigin: 'center',
           opacity: loaded ? 1 : 0,
           transition: 'opacity 1s ease',
         }}

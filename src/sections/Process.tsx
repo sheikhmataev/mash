@@ -48,9 +48,9 @@ export default function Process() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.25, duration: 0.9 }}
-          className="glass glow-border overflow-hidden rounded-2xl"
+          className="glass glow-border rounded-2xl"
         >
-          <div className="relative h-[320px] max-h-[72vh] w-full sm:h-[400px] md:h-[520px]">
+          <div className="relative w-full overflow-hidden rounded-2xl aspect-[16/10] max-h-[62vh] sm:aspect-auto sm:h-[400px] md:h-[520px]">
             <SplineHero
               scene="/Process.splinecode"
               className="h-full w-full"
