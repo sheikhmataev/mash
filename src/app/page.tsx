@@ -1,5 +1,6 @@
 import Navigation from '@/components/Navigation';
 import DeferredVisualEffects from '@/components/DeferredVisualEffects';
+import SectionPrefetcher from '@/components/SectionPrefetcher';
 import SectionDivider from '@/components/SectionDivider';
 import Hero from '@/sections/Hero';
 import Capabilities from '@/sections/Capabilities';
@@ -16,6 +17,7 @@ import Footer from '@/sections/Footer';
 export default function Home() {
   return (
     <>
+      <SectionPrefetcher />
       <DeferredVisualEffects />
       <Navigation />
       <main>

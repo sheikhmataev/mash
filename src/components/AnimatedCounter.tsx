@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
+import { useDeviceMotionProfile } from '@/lib/useDeviceMotionProfile';
 
 interface AnimatedCounterProps {
   value: number;
@@ -16,6 +17,8 @@ export default function AnimatedCounter({
   label,
   duration = 2,
 }: AnimatedCounterProps) {
+  const { isMobileLike, prefersReducedMotion } = useDeviceMotionProfile();
+  const lowMotion = isMobileLike || prefersReducedMotion;
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [count, setCount] = useState(0);
@@ -23,26 +26,26 @@ export default function AnimatedCounter({
   useEffect(() => {
     if (!isInView) return;
 
-    let start = 0;
     const end = value;
-    const totalFrames = Math.round(duration * 60);
-    let frame = 0;
+    const animationDuration = lowMotion ? Math.min(duration, 1.1) : duration;
+    const startTime = performance.now();
+    let animationId = 0;
 
-    const counter = setInterval(() => {
-      frame++;
-      const progress = frame / totalFrames;
+    const tick = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / (animationDuration * 1000), 1);
       const eased = 1 - Math.pow(1 - progress, 3);
-      start = Math.round(eased * end);
-      setCount(start);
-
-      if (frame >= totalFrames) {
-        clearInterval(counter);
+      setCount(Math.round(eased * end));
+      if (progress < 1) {
+        animationId = requestAnimationFrame(tick);
+      } else {
         setCount(end);
       }
-    }, 1000 / 60);
+    };
 
-    return () => clearInterval(counter);
-  }, [isInView, value, duration]);
+    animationId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animationId);
+  }, [isInView, value, duration, lowMotion]);
 
   return (
     <motion.div
@@ -50,7 +53,7 @@ export default function AnimatedCounter({
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+      transition={{ duration: lowMotion ? 0.4 : 0.7, ease: [0.25, 0.1, 0.25, 1] }}
       className="text-center"
     >
       <div className="font-[family-name:var(--font-space-grotesk)] text-5xl font-bold text-text-primary md:text-6xl">

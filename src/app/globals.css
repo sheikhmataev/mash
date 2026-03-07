@@ -232,3 +232,11 @@ a {
 .mobile-swipe-track::-webkit-scrollbar {
   display: none;
 }
+
+@media (max-width: 768px) {
+  .animate-gradient,
+  .animate-spin-slow,
+  .animate-pulse-glow {
+    animation-duration: 14s !important;
+  }
+}

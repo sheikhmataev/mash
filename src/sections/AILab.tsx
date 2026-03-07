@@ -4,17 +4,22 @@ import { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { LAB_ENTRIES } from '@/lib/constants';
 import { createNeuralNetwork } from '@/lib/particles';
+import { useDeviceMotionProfile } from '@/lib/useDeviceMotionProfile';
+import { usePredictiveSectionReady } from '@/lib/usePredictiveSectionReady';
 
 function LabCard({
   entry,
   index,
+  lowMotion,
 }: {
   entry: (typeof LAB_ENTRIES)[number];
   index: number;
+  lowMotion: boolean;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    if (lowMotion) return;
     if (!canvasRef.current) return;
     const colors = ['123, 97, 255', '58, 168, 255', '0, 255, 209', '255, 60, 172'];
     const net = createNeuralNetwork(canvasRef.current, {
@@ -22,7 +27,7 @@ function LabCard({
       color: colors[index % colors.length],
     });
     return () => net.destroy();
-  }, [index]);
+  }, [index, lowMotion]);
 
   const statusColors: Record<string, string> = {
     'Active Research': 'text-accent-cyan border-accent-cyan/20 bg-accent-cyan/5',
@@ -35,15 +40,17 @@ function LabCard({
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-50px' }}
-      transition={{ delay: index * 0.1, duration: 0.7 }}
+      viewport={lowMotion ? { once: true, amount: 0.15 } : { once: true, margin: '-50px' }}
+      transition={{ delay: lowMotion ? index * 0.04 : index * 0.1, duration: lowMotion ? 0.4 : 0.7 }}
       className="group glass glow-border relative overflow-hidden p-6 transition-all duration-500 hover:bg-[rgba(23,26,33,0.8)]"
     >
       {/* Canvas neural network background */}
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 h-full w-full opacity-20 transition-opacity duration-500 group-hover:opacity-40"
-      />
+      {!lowMotion && (
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 h-full w-full opacity-20 transition-opacity duration-500 group-hover:opacity-40"
+        />
+      )}
 
       <div className="relative z-10">
         <div className="mb-4 flex items-center justify-between">
@@ -87,8 +94,15 @@ function LabCard({
 }
 
 export default function AILab() {
+  const { isMobileLike, prefersReducedMotion } = useDeviceMotionProfile();
+  const lowMotion = isMobileLike || prefersReducedMotion;
+  const sectionRef = useRef<HTMLElement>(null);
+  const labReady = usePredictiveSectionReady(sectionRef, {
+    rootMargin: '700px 0px',
+  });
+
   return (
-    <section id="lab" className="section-padding relative overflow-hidden">
+    <section ref={sectionRef} id="lab" className="section-padding relative overflow-hidden">
       <div className="absolute inset-0 opacity-20">
         <div
           className="absolute left-1/4 top-1/3 h-[400px] w-[400px] rounded-full blur-[100px]"
@@ -114,7 +128,7 @@ export default function AILab() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.1, duration: 0.8 }}
+            transition={{ delay: 0.06, duration: lowMotion ? 0.45 : 0.8 }}
             className="mt-3 font-[family-name:var(--font-space-grotesk)] text-3xl font-bold text-text-primary md:text-5xl"
           >
             AI Lab
@@ -123,7 +137,7 @@ export default function AILab() {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.2, duration: 0.8 }}
+            transition={{ delay: 0.1, duration: lowMotion ? 0.4 : 0.8 }}
             className="mt-3 max-w-lg text-text-secondary"
           >
             Active experiments and internal tools pushing the boundaries of what&apos;s possible.
@@ -131,9 +145,21 @@ export default function AILab() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          {LAB_ENTRIES.map((entry, i) => (
-            <LabCard key={entry.title} entry={entry} index={i} />
-          ))}
+          {labReady
+            ? LAB_ENTRIES.map((entry, i) => (
+                <LabCard key={entry.title} entry={entry} index={i} lowMotion={lowMotion} />
+              ))
+            : Array.from({ length: 4 }).map((_, i) => (
+                <div key={`lab-skeleton-${i}`} className="glass shimmer relative overflow-hidden p-6">
+                  <div className="mb-4 h-5 w-28 rounded-full bg-white/10" />
+                  <div className="h-5 w-3/4 rounded bg-white/10" />
+                  <div className="mt-3 space-y-2">
+                    <div className="h-3 w-full rounded bg-white/8" />
+                    <div className="h-3 w-5/6 rounded bg-white/8" />
+                    <div className="h-3 w-2/3 rounded bg-white/8" />
+                  </div>
+                </div>
+              ))}
         </div>
       </div>
     </section>

@@ -60,19 +60,20 @@ export default function SplineHero({
     if (!deferLoad) return;
     const element = containerRef.current;
     if (!element) return;
+    const preloadMargin = isMobile ? '900px 0px' : '500px 0px';
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;
-        window.setTimeout(() => setShouldLoad(true), 120);
+        window.setTimeout(() => setShouldLoad(true), isMobile ? 60 : 120);
         observer.disconnect();
       },
-      { rootMargin: '200px 0px', threshold: 0.01 },
+      { rootMargin: preloadMargin, threshold: 0.01 },
     );
 
     observer.observe(element);
     return () => observer.disconnect();
-  }, [deferLoad]);
+  }, [deferLoad, isMobile]);
 
   useEffect(() => {
     if (!playOnlyWhenInView) return;
@@ -99,6 +100,7 @@ export default function SplineHero({
     if (!canvas) return;
 
     let cancelled = false;
+    let maxWaitId: ReturnType<typeof setTimeout> | null = null;
     setLoaded(false);
 
     // Suppress the harmless "Missing property" spam from Spline's
@@ -138,9 +140,13 @@ export default function SplineHero({
     };
 
     void init();
+    maxWaitId = setTimeout(() => {
+      if (!cancelled) setLoaded(true);
+    }, 2800);
 
     return () => {
       cancelled = true;
+      if (maxWaitId) clearTimeout(maxWaitId);
       console.error = origError;
       if (appRef.current) {
         appRef.current.dispose();

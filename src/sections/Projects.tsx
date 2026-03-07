@@ -4,8 +4,12 @@ import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { PROJECTS } from '@/lib/constants';
+import { useDeviceMotionProfile } from '@/lib/useDeviceMotionProfile';
+import { usePredictiveSectionReady } from '@/lib/usePredictiveSectionReady';
 
 export default function Projects() {
+  const { isMobileLike, prefersReducedMotion } = useDeviceMotionProfile();
+  const lowMotion = isMobileLike || prefersReducedMotion;
   const [expandedPreview, setExpandedPreview] = useState<number | null>(null);
   const [isOverlayHovered, setIsOverlayHovered] = useState(false);
   const [missingPreviewIndices, setMissingPreviewIndices] = useState<number[]>([]);
@@ -14,6 +18,10 @@ export default function Projects() {
   const previewBoxCloseTimeoutRef = useRef<number | null>(null);
   const HOVER_INTENT_DELAY_MS = 550;
   const PREVIEW_BOX_CLOSE_GRACE_MS = 320;
+  const sectionRef = useRef<HTMLElement>(null);
+  const projectsReady = usePredictiveSectionReady(sectionRef, {
+    rootMargin: '750px 0px',
+  });
 
   useEffect(() => {
     if (expandedPreview !== null) {
@@ -96,7 +104,7 @@ export default function Projects() {
   };
 
   return (
-    <section id="projects" className="section-padding relative overflow-hidden">
+    <section ref={sectionRef} id="projects" className="section-padding relative overflow-hidden">
       {/* Exhibition space background */}
       <div className="absolute inset-0">
         <div
@@ -138,16 +146,24 @@ export default function Projects() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {PROJECTS.map((project, i) => (
+          {projectsReady ? PROJECTS.map((project, i) => (
             <motion.div
               key={project.title}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{ duration: 0.7, delay: i * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
-              whileHover={{ y: -6, transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] } }}
-              onMouseEnter={() => handleCardMouseEnter(i)}
-              onMouseLeave={handleCardMouseLeave}
+              viewport={lowMotion ? { once: true, amount: 0.14 } : { once: true, margin: '-50px' }}
+              transition={{
+                duration: lowMotion ? 0.4 : 0.7,
+                delay: lowMotion ? i * 0.04 : i * 0.1,
+                ease: [0.25, 0.1, 0.25, 1],
+              }}
+              whileHover={
+                lowMotion
+                  ? undefined
+                  : { y: -6, transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] } }
+              }
+              onMouseEnter={lowMotion ? undefined : () => handleCardMouseEnter(i)}
+              onMouseLeave={lowMotion ? undefined : handleCardMouseLeave}
               className="glass group relative p-6 transition-all duration-500 hover:shadow-[0_0_40px_rgba(123,97,255,0.1)]"
             >
               <div className="relative mb-5 aspect-[16/10] overflow-hidden rounded-lg border border-white/5 bg-bg-deep/80">
@@ -207,6 +223,16 @@ export default function Projects() {
                 </svg>
               </a>
             </motion.div>
+          )) : Array.from({ length: 3 }).map((_, i) => (
+            <div key={`project-skeleton-${i}`} className="glass shimmer relative p-6">
+              <div className="mb-5 aspect-[16/10] rounded-lg border border-white/5 bg-white/8" />
+              <div className="h-5 w-2/3 rounded bg-white/10" />
+              <div className="mt-3 space-y-2">
+                <div className="h-3 w-full rounded bg-white/8" />
+                <div className="h-3 w-4/5 rounded bg-white/8" />
+              </div>
+              <div className="mt-5 h-3 w-1/2 rounded bg-white/10" />
+            </div>
           ))}
         </div>
       </div>

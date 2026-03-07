@@ -2,8 +2,12 @@
 
 import { motion } from 'framer-motion';
 import { TECH_CATEGORIES } from '@/lib/constants';
+import { useDeviceMotionProfile } from '@/lib/useDeviceMotionProfile';
 
 export default function TechStack() {
+  const { isMobileLike, prefersReducedMotion } = useDeviceMotionProfile();
+  const lowMotion = isMobileLike || prefersReducedMotion;
+
   return (
     <section className="section-padding relative overflow-hidden">
       {/* Central glow */}
@@ -28,7 +32,7 @@ export default function TechStack() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.1, duration: 0.8 }}
+            transition={{ delay: 0.06, duration: lowMotion ? 0.45 : 0.8 }}
             className="mt-3 font-[family-name:var(--font-space-grotesk)] text-3xl font-bold text-text-primary md:text-5xl"
           >
             Technology Stack
@@ -42,7 +46,7 @@ export default function TechStack() {
             initial={{ scale: 0, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+            transition={{ duration: lowMotion ? 0.45 : 0.8, ease: [0.25, 0.1, 0.25, 1] }}
             className="relative z-10 mb-12 flex h-28 w-28 items-center justify-center"
           >
             <div className="absolute inset-0 animate-spin-slow rounded-full border border-accent-violet/20" />
@@ -60,7 +64,7 @@ export default function TechStack() {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.7 }}
+                transition={{ delay: lowMotion ? i * 0.04 : i * 0.1, duration: lowMotion ? 0.4 : 0.7 }}
                 className="glass group p-5 text-center transition-all duration-500 hover:bg-[rgba(23,26,33,0.8)] hover:shadow-[0_0_30px_rgba(123,97,255,0.08)]"
               >
                 <h3 className="mb-3 font-[family-name:var(--font-space-grotesk)] text-sm font-semibold tracking-wide text-accent-violet uppercase">
