@@ -65,7 +65,7 @@ export default function Process() {
           transition={{ delay: 0.12, duration: lowMotion ? 0.45 : 0.9 }}
           className="glass glow-border rounded-2xl"
         >
-          <div className="relative w-full overflow-hidden rounded-2xl aspect-[16/10] max-h-[62vh] sm:aspect-auto sm:h-[400px] md:h-[520px]">
+          <div className="relative w-full overflow-hidden rounded-2xl aspect-[5/4] max-h-[70vh] min-h-[280px] sm:aspect-auto sm:h-[400px] md:h-[520px]">
             {processReady ? (
               <SplineHero
                 scene="/Process.splinecode"
@@ -73,6 +73,9 @@ export default function Process() {
                 playOnlyWhenInView
                 deferLoad
                 mobileFitContain
+                mobileScaleDesignWidth={460}
+                mobileScaleMin={0.64}
+                mobileScaleBreakpoint={768}
               />
             ) : (
               <div className="shimmer absolute inset-0 flex items-center justify-center bg-bg-surface/35">
