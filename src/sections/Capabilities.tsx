@@ -33,16 +33,33 @@ export default function Capabilities() {
     if (!enablePinnedScroll || !capabilitiesReady) return;
     if (!sectionRef.current || !scrollRef.current) return;
 
-    const scrollWidth = scrollRef.current.scrollWidth - window.innerWidth;
-    if (scrollWidth <= 0) return;
+    const cards = Array.from(
+      scrollRef.current.querySelectorAll<HTMLElement>('[data-cap-card="true"]'),
+    );
+    const lastCard = cards[cards.length - 1];
+    const fallbackDistance = scrollRef.current.scrollWidth - window.innerWidth;
+    const centeredDistance = lastCard
+      ? Math.max(
+          lastCard.offsetLeft - Math.max((window.innerWidth - lastCard.offsetWidth) / 2, 0),
+          0,
+        )
+      : fallbackDistance;
+    const centerDelta = Math.max(centeredDistance - fallbackDistance, 0);
+    const widthCompensationFactor =
+      window.innerWidth <= 390 ? 0.35 : window.innerWidth <= 430 ? 0.72 : 1;
+    const scrollDistance = Math.max(
+      fallbackDistance + centerDelta * widthCompensationFactor,
+      0,
+    );
+    if (scrollDistance <= 0) return;
 
     const tween = gsap.to(scrollRef.current, {
-      x: -scrollWidth,
+      x: -scrollDistance,
       ease: 'none',
       scrollTrigger: {
         trigger: sectionRef.current,
         start: 'top top',
-        end: () => `+=${scrollWidth}`,
+        end: () => `+=${scrollDistance}`,
         pin: true,
         scrub: 1,
         anticipatePin: 1,
@@ -54,7 +71,7 @@ export default function Capabilities() {
       tween.scrollTrigger?.kill();
       tween.kill();
     };
-  }, [enablePinnedScroll, capabilitiesReady]);
+  }, [enablePinnedScroll, capabilitiesReady, isMobileLike]);
 
   return (
     <section
@@ -84,6 +101,11 @@ export default function Capabilities() {
           >
             Capability Spectrum
           </motion.h2>
+          <p className="mt-2 text-xs tracking-wide text-text-muted md:text-sm">
+            {enablePinnedScroll
+              ? 'Scroll down to move through capabilities.'
+              : 'Swipe horizontally to explore all capabilities.'}
+          </p>
         </div>
 
         {/* Horizontal scroll track */}
@@ -94,12 +116,13 @@ export default function Capabilities() {
           }`}
         >
           {/* Spacer for header */}
-          <div className={`${enablePinnedScroll ? 'w-8 md:w-[120px]' : 'w-2'} shrink-0`} />
+          <div className={`${enablePinnedScroll ? 'w-[10vw] md:w-[120px]' : 'w-[7.5vw]'} shrink-0`} />
 
           {capabilitiesReady
             ? CAPABILITIES.map((cap, i) => (
                 <motion.div
                   key={cap.title}
+                  data-cap-card="true"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -107,7 +130,7 @@ export default function Capabilities() {
                   className={`group glass glow-border relative shrink-0 overflow-hidden p-8 transition-all duration-500 hover:bg-[rgba(23,26,33,0.8)] ${
                     enablePinnedScroll
                       ? 'w-[82vw] max-w-[360px] md:w-[52vw] lg:w-[360px]'
-                      : 'w-[85vw] max-w-[360px] snap-start'
+                      : 'w-[85vw] max-w-[360px] snap-center'
                   }`}
                 >
                   <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl border border-accent-violet/20 bg-accent-violet/5 text-2xl text-accent-violet transition-all duration-500 group-hover:bg-accent-violet/10 group-hover:shadow-[0_0_20px_rgba(123,97,255,0.15)]">
@@ -138,10 +161,11 @@ export default function Capabilities() {
             : Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={`cap-skeleton-${i}`}
+                  data-cap-card="true"
                   className={`glass shimmer relative shrink-0 overflow-hidden p-8 ${
                     enablePinnedScroll
                       ? 'w-[82vw] max-w-[360px] md:w-[52vw] lg:w-[360px]'
-                      : 'w-[85vw] max-w-[360px] snap-start'
+                      : 'w-[85vw] max-w-[360px] snap-center'
                   }`}
                 >
                   <div className="mb-6 h-14 w-14 rounded-xl border border-accent-violet/15 bg-accent-violet/8" />
@@ -154,6 +178,9 @@ export default function Capabilities() {
                   </div>
                 </div>
               ))}
+
+          {/* Trailing spacer so last card can fully enter viewport */}
+          <div className={`${enablePinnedScroll ? 'w-[28vw] md:w-[180px]' : 'w-[7.5vw]'} shrink-0`} />
         </div>
       </div>
     </section>

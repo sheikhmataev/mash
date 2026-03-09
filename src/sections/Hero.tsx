@@ -1,8 +1,9 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import dynamic from 'next/dynamic';
+import { useDeviceMotionProfile } from '@/lib/useDeviceMotionProfile';
 
 const SplineHero = dynamic(() => import('@/components/SplineHero'), {
   ssr: false,
@@ -12,7 +13,8 @@ export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const [isMobile, setIsMobile] = useState(false);
+  const { isMobileLike, prefersReducedMotion } = useDeviceMotionProfile();
+  const lowMotion = isMobileLike || prefersReducedMotion;
 
   const springConfig = { damping: 30, stiffness: 80 };
   const x = useSpring(mouseX, springConfig);
@@ -24,14 +26,7 @@ export default function Hero() {
   const orbY = useTransform(y, (v) => v * -0.01);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener('resize', handleResize, { passive: true });
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    if (isMobile) return;
+    if (lowMotion) return;
     const handleMouse = (e: MouseEvent) => {
       const cx = window.innerWidth / 2;
       const cy = window.innerHeight / 2;
@@ -43,7 +38,7 @@ export default function Hero() {
     return () => {
       window.removeEventListener('mousemove', handleMouse);
     };
-  }, [isMobile, mouseX, mouseY]);
+  }, [lowMotion, mouseX, mouseY]);
 
   return (
     <section
@@ -57,23 +52,25 @@ export default function Hero() {
       >
         <div className="absolute inset-0 bg-bg-deep" />
         <div
-          className="absolute inset-0 animate-gradient opacity-60"
+          className="absolute inset-0 animate-gradient opacity-45"
           style={{
             background:
-              'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(123, 97, 255, 0.12) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 30% 70%, rgba(58, 168, 255, 0.08) 0%, transparent 50%), radial-gradient(ellipse 50% 40% at 80% 30%, rgba(0, 255, 209, 0.04) 0%, transparent 50%)',
+              'radial-gradient(ellipse 80% 60% at 50% 40%, rgba(123, 97, 255, 0.1) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 30% 70%, rgba(58, 168, 255, 0.07) 0%, transparent 50%), radial-gradient(ellipse 50% 40% at 80% 30%, rgba(0, 255, 209, 0.03) 0%, transparent 50%)',
             backgroundSize: '200% 200%',
           }}
         />
         {/* Light sweep overlay */}
-        <div className="absolute inset-0 overflow-hidden opacity-10">
-          <div
-            className="absolute top-0 h-full w-1/3"
-            style={{
-              background: 'linear-gradient(90deg, transparent, rgba(123, 97, 255, 0.3), transparent)',
-              animation: 'sweep 8s ease-in-out infinite',
-            }}
-          />
-        </div>
+        {!lowMotion && (
+          <div className="absolute inset-0 overflow-hidden opacity-[0.06]">
+            <div
+              className="absolute top-0 h-full w-1/3"
+              style={{
+                background: 'linear-gradient(90deg, transparent, rgba(123, 97, 255, 0.24), transparent)',
+                animation: 'sweep 10s ease-in-out infinite',
+              }}
+            />
+          </div>
+        )}
       </motion.div>
 
       {/* Orb glow behind Spline */}
@@ -90,8 +87,8 @@ export default function Hero() {
       </motion.div>
 
       {/* Spline 3D scene */}
-      {!isMobile && (
-        <div className="absolute inset-0 z-0 opacity-70">
+      {!lowMotion && (
+        <div className="absolute inset-0 z-0 opacity-60">
           <SplineHero className="h-full w-full" deferLoad />
         </div>
       )}
@@ -105,7 +102,7 @@ export default function Hero() {
           className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent-violet/20 bg-accent-violet/5 px-4 py-1.5"
         >
           <span className="h-1.5 w-1.5 rounded-full bg-accent-violet animate-pulse-glow" />
-          <span className="text-xs tracking-widest text-accent-violet uppercase">
+          <span className="text-sm tracking-[0.2em] text-accent-violet uppercase">
             AI Automation Partner
           </span>
         </motion.div>

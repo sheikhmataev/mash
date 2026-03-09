@@ -21,6 +21,8 @@ export default function SplineHero({
   className = '',
   playOnlyWhenInView = false,
   deferLoad = false,
+  replayEveryMs = 0,
+  replayDelayMs = 0,
   mobileFitContain = false,
   mobileScaleDesignWidth = 420,
   mobileScaleDesignHeight,
@@ -33,6 +35,8 @@ export default function SplineHero({
   className?: string;
   playOnlyWhenInView?: boolean;
   deferLoad?: boolean;
+  replayEveryMs?: number;
+  replayDelayMs?: number;
   mobileFitContain?: boolean;
   mobileScaleDesignWidth?: number;
   mobileScaleDesignHeight?: number;
@@ -50,6 +54,7 @@ export default function SplineHero({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isInViewRef = useRef(isInView);
+  const isReplayingRef = useRef(false);
   const appRef = useRef<{
     load: (url: string) => Promise<void>;
     dispose: () => void;
@@ -207,6 +212,39 @@ export default function SplineHero({
       appRef.current.stop?.();
     }
   }, [isInView, playOnlyWhenInView]);
+
+  useEffect(() => {
+    if (!replayEveryMs || replayEveryMs <= 0) return;
+    if (!loaded) return;
+    if (!appRef.current) return;
+
+    let replayTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    const replayScene = () => {
+      if (playOnlyWhenInView && !isInViewRef.current) return;
+      if (isReplayingRef.current) return;
+      const app = appRef.current;
+      if (!app) return;
+      isReplayingRef.current = true;
+      app.stop?.();
+
+      replayTimeoutId = setTimeout(() => {
+        if (playOnlyWhenInView && !isInViewRef.current) {
+          isReplayingRef.current = false;
+          return;
+        }
+        appRef.current?.play?.();
+        isReplayingRef.current = false;
+      }, replayDelayMs);
+    };
+
+    const intervalId = setInterval(replayScene, replayEveryMs);
+    return () => {
+      clearInterval(intervalId);
+      if (replayTimeoutId) clearTimeout(replayTimeoutId);
+      isReplayingRef.current = false;
+    };
+  }, [normalizedScene, playOnlyWhenInView, replayEveryMs, replayDelayMs, isInView, loaded]);
 
   const mobileScale = (() => {
     if (!mobileFitContain || !isMobile) return 1;

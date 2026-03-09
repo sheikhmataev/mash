@@ -9,10 +9,10 @@ export default function ParticleOverlay() {
   useEffect(() => {
     if (!canvasRef.current) return;
     const system = createParticleSystem(canvasRef.current, {
-      count: 50,
+      count: 34,
       color: '123, 97, 255',
       maxRadius: 1.5,
-      speed: 0.15,
+      speed: 0.1,
     });
     return () => system.destroy();
   }, []);
@@ -20,7 +20,7 @@ export default function ParticleOverlay() {
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none fixed inset-0 z-30 h-full w-full opacity-40"
+      className="pointer-events-none fixed inset-0 z-30 h-full w-full opacity-25"
     />
   );
 }

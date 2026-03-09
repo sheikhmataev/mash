@@ -7,12 +7,21 @@ import ParticleOverlay from '@/components/ParticleOverlay';
 export default function DeferredVisualEffects() {
   const [ready, setReady] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
     onResize();
     window.addEventListener('resize', onResize, { passive: true });
     return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = () => setPrefersReducedMotion(media.matches);
+    onChange();
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
   }, []);
 
   useEffect(() => {
@@ -45,8 +54,8 @@ export default function DeferredVisualEffects() {
 
   return (
     <>
-      <CustomCursor />
-      {!isMobile && <ParticleOverlay />}
+      {!isMobile && !prefersReducedMotion && <CustomCursor />}
+      {!isMobile && !prefersReducedMotion && <ParticleOverlay />}
     </>
   );
 }

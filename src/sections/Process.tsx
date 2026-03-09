@@ -72,14 +72,16 @@ export default function Process() {
                   Drag / Scroll
                 </div>
                 <div
-                  className="mobile-swipe-track h-full w-full overflow-scroll overscroll-contain md:overflow-hidden"
-                  style={{ touchAction: 'pan-x pan-y' }}
+                  className="h-full w-full overflow-hidden"
+                  style={{ touchAction: 'pan-y' }}
                 >
-                  <div className="h-[760px] w-[860px] min-h-full min-w-full md:h-full md:w-full">
+                  <div className="h-full w-full">
                     <SplineHero
                       scene="/Process.splinecode"
                       className="h-full w-full"
                       playOnlyWhenInView
+                      replayEveryMs={lowMotion ? 0 : 11000}
+                      replayDelayMs={lowMotion ? 0 : 120}
                       deferLoad
                       disablePointerEvents
                     />

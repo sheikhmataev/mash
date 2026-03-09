@@ -57,6 +57,7 @@ export default function CTA() {
           transition={{ delay: 0.2, duration: 0.8 }}
           className="glass glow-border mt-12 p-8"
           onSubmit={handleSubmit}
+          noValidate
         >
           <div className="flex flex-col gap-5">
             <div>

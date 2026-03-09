@@ -35,6 +35,12 @@ export default function RootLayout({
       <body
         className={`${spaceGrotesk.variable} ${inter.variable} antialiased`}
       >
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[110] focus:rounded-md focus:bg-bg-surface focus:px-4 focus:py-2 focus:text-sm focus:text-text-primary"
+        >
+          Skip to main content
+        </a>
         {children}
       </body>
     </html>

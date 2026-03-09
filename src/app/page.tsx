@@ -18,7 +18,7 @@ export default function Home() {
       <SectionPrefetcher />
       <DeferredVisualEffects />
       <Navigation />
-      <main>
+      <main id="main-content">
         <Hero />
         <SectionDivider />
         <Capabilities />

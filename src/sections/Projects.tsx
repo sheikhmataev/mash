@@ -11,14 +11,16 @@ export default function Projects() {
   const { isMobileLike, prefersReducedMotion } = useDeviceMotionProfile();
   const lowMotion = isMobileLike || prefersReducedMotion;
   const [expandedPreview, setExpandedPreview] = useState<number | null>(null);
+  const [previewOpenMode, setPreviewOpenMode] = useState<'button' | 'hover' | null>(null);
   const [isOverlayHovered, setIsOverlayHovered] = useState(false);
   const [missingPreviewIndices, setMissingPreviewIndices] = useState<number[]>([]);
+  const previewDialogRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
   const openTimeoutRef = useRef<number | null>(null);
   const closeTimeoutRef = useRef<number | null>(null);
-  const previewBoxCloseTimeoutRef = useRef<number | null>(null);
-  const HOVER_INTENT_DELAY_MS = 550;
-  const PREVIEW_BOX_CLOSE_GRACE_MS = 320;
   const sectionRef = useRef<HTMLElement>(null);
+  const HOVER_INTENT_DELAY_MS = 420;
+  const HOVER_CLOSE_DELAY_MS = 120;
   const projectsReady = usePredictiveSectionReady(sectionRef, {
     rootMargin: '750px 0px',
   });
@@ -32,71 +34,89 @@ export default function Projects() {
 
     return () => {
       document.body.classList.remove('live-preview-open');
-      if (openTimeoutRef.current) {
-        window.clearTimeout(openTimeoutRef.current);
-      }
-      if (closeTimeoutRef.current) {
-        window.clearTimeout(closeTimeoutRef.current);
-      }
-      if (previewBoxCloseTimeoutRef.current) {
-        window.clearTimeout(previewBoxCloseTimeoutRef.current);
-      }
+      if (openTimeoutRef.current) window.clearTimeout(openTimeoutRef.current);
+      if (closeTimeoutRef.current) window.clearTimeout(closeTimeoutRef.current);
     };
   }, [expandedPreview]);
 
   useEffect(() => {
     if (expandedPreview === null) return;
-
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setExpandedPreview(null);
+        setPreviewOpenMode(null);
       }
     };
-
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [expandedPreview]);
 
+  useEffect(() => {
+    if (expandedPreview === null || previewOpenMode !== 'button') return;
+    if (expandedPreview === null) return;
+    const previousFocus = triggerRef.current;
+    document.body.style.overflow = 'hidden';
+    const dialog = previewDialogRef.current;
+    const focusables = dialog?.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+    focusables?.[0]?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || !focusables?.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = '';
+      previousFocus?.focus();
+    };
+  }, [expandedPreview, previewOpenMode]);
+
   const handleCardMouseEnter = (index: number) => {
-    if (openTimeoutRef.current) {
-      window.clearTimeout(openTimeoutRef.current);
-    }
-    if (closeTimeoutRef.current) {
-      window.clearTimeout(closeTimeoutRef.current);
-    }
+    if (lowMotion) return;
+    if (closeTimeoutRef.current) window.clearTimeout(closeTimeoutRef.current);
+    if (openTimeoutRef.current) window.clearTimeout(openTimeoutRef.current);
     openTimeoutRef.current = window.setTimeout(() => {
+      setPreviewOpenMode('hover');
       setExpandedPreview(index);
     }, HOVER_INTENT_DELAY_MS);
   };
 
   const handleCardMouseLeave = () => {
+    if (lowMotion) return;
     if (openTimeoutRef.current) {
       window.clearTimeout(openTimeoutRef.current);
       openTimeoutRef.current = null;
     }
-    // Don't close immediately - wait a bit in case user is moving to overlay
-    const timeout = window.setTimeout(() => {
-      if (!isOverlayHovered) {
+    closeTimeoutRef.current = window.setTimeout(() => {
+      if (!isOverlayHovered && previewOpenMode === 'hover') {
         setExpandedPreview(null);
+        setPreviewOpenMode(null);
       }
-    }, 100);
-    closeTimeoutRef.current = timeout;
+    }, HOVER_CLOSE_DELAY_MS);
   };
 
   const handleOverlayMouseEnter = () => {
+    if (previewOpenMode !== 'hover') return;
     setIsOverlayHovered(true);
-    if (openTimeoutRef.current) {
-      window.clearTimeout(openTimeoutRef.current);
-      openTimeoutRef.current = null;
-    }
-    if (closeTimeoutRef.current) {
-      window.clearTimeout(closeTimeoutRef.current);
-    }
+    if (closeTimeoutRef.current) window.clearTimeout(closeTimeoutRef.current);
   };
 
   const handleOverlayMouseLeave = () => {
     setIsOverlayHovered(false);
     setExpandedPreview(null);
+    setPreviewOpenMode(null);
   };
 
   const markPreviewMissing = (index: number) => {
@@ -162,8 +182,8 @@ export default function Projects() {
                   ? undefined
                   : { y: -6, transition: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] } }
               }
-              onMouseEnter={lowMotion ? undefined : () => handleCardMouseEnter(i)}
-              onMouseLeave={lowMotion ? undefined : handleCardMouseLeave}
+              onMouseEnter={() => handleCardMouseEnter(i)}
+              onMouseLeave={handleCardMouseLeave}
               className="glass group relative p-6 transition-all duration-500 hover:shadow-[0_0_40px_rgba(123,97,255,0.1)]"
             >
               <div className="relative mb-5 aspect-[16/10] overflow-hidden rounded-lg border border-white/5 bg-bg-deep/80">
@@ -211,18 +231,32 @@ export default function Projects() {
                 {project.description}
               </p>
 
-              <a
-                href={project.url}
-                target="_blank"
-                rel="noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="mt-5 inline-flex items-center gap-2 text-xs text-text-muted transition-colors duration-300 group-hover:text-accent-violet"
-              >
-                <span>Open Live Website</span>
-                <svg className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H18m0 0v4.5M18 6l-7.5 7.5M7.5 18h-1.5A1.5 1.5 0 014.5 16.5V6A1.5 1.5 0 016 4.5h10.5A1.5 1.5 0 0118 6v1.5" />
-                </svg>
-              </a>
+              <div className="mt-5 flex items-center justify-between gap-3">
+                <a
+                  href={project.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label={`Open ${project.title} live website (opens in new tab)`}
+                  className="inline-flex items-center gap-2 text-xs text-text-muted transition-colors duration-300 group-hover:text-accent-violet"
+                >
+                  <span>Open Live Website</span>
+                  <svg className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H18m0 0v4.5M18 6l-7.5 7.5M7.5 18h-1.5A1.5 1.5 0 014.5 16.5V6A1.5 1.5 0 016 4.5h10.5A1.5 1.5 0 0118 6v1.5" />
+                  </svg>
+                </a>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    triggerRef.current = e.currentTarget;
+                    setPreviewOpenMode('button');
+                    setExpandedPreview(i);
+                  }}
+                  className="inline-flex rounded-full border border-white/15 px-4 py-1.5 text-xs text-text-primary transition-colors duration-300 hover:border-accent-violet/30 hover:text-accent-violet"
+                >
+                  Preview Site
+                </button>
+              </div>
             </motion.div>
           )) : Array.from({ length: 3 }).map((_, i) => (
             <div key={`project-skeleton-${i}`} className="glass shimmer relative p-6">
@@ -242,6 +276,9 @@ export default function Projects() {
       <AnimatePresence>
         {expandedPreview !== null && (
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="project-preview-title"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -255,25 +292,17 @@ export default function Projects() {
             }}
           >
             <motion.div
+              ref={previewDialogRef}
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-              className="relative h-[85vh] w-[90vw] overflow-hidden rounded-2xl border border-accent-violet/20 shadow-[0_0_80px_rgba(123,97,255,0.2)]"
-              onMouseEnter={() => {
-                if (previewBoxCloseTimeoutRef.current) {
-                  window.clearTimeout(previewBoxCloseTimeoutRef.current);
-                  previewBoxCloseTimeoutRef.current = null;
-                }
-              }}
               onMouseLeave={() => {
-                if (previewBoxCloseTimeoutRef.current) {
-                  window.clearTimeout(previewBoxCloseTimeoutRef.current);
-                }
-                previewBoxCloseTimeoutRef.current = window.setTimeout(() => {
+                if (previewOpenMode === 'hover') {
                   handleOverlayMouseLeave();
-                }, PREVIEW_BOX_CLOSE_GRACE_MS);
+                }
               }}
+              className="relative h-[85vh] w-[90vw] overflow-hidden rounded-2xl border border-accent-violet/20 shadow-[0_0_80px_rgba(123,97,255,0.2)]"
             >
               <iframe
                 src={PROJECTS[expandedPreview].url}
@@ -285,15 +314,19 @@ export default function Projects() {
               <div className="absolute bottom-0 left-0 right-0 glass border-t border-white/10 p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-[family-name:var(--font-space-grotesk)] text-sm font-semibold text-text-primary">
+                    <h4
+                      id="project-preview-title"
+                      className="font-[family-name:var(--font-space-grotesk)] text-sm font-semibold text-text-primary"
+                    >
                       {PROJECTS[expandedPreview].title}
                     </h4>
-                    <p className="mt-0.5 text-xs text-text-muted">Live preview • Move mouse away to close</p>
+                    <p className="mt-0.5 text-xs text-text-muted">Live preview</p>
                   </div>
                   <a
                     href={PROJECTS[expandedPreview].url}
                     target="_blank"
                     rel="noreferrer"
+                    aria-label={`Open ${PROJECTS[expandedPreview].title} full site (opens in new tab)`}
                     className="rounded-full bg-accent-violet px-4 py-2 text-xs font-medium text-white transition-all duration-300 hover:shadow-[0_0_20px_rgba(123,97,255,0.4)]"
                   >
                     Open Full Site
@@ -304,7 +337,7 @@ export default function Projects() {
                   onClick={handleOverlayMouseLeave}
                   className="absolute right-3 top-3 rounded-full border border-white/20 bg-bg-deep/70 px-2 py-1 text-[10px] tracking-wide text-text-primary"
                 >
-                  Esc
+                  Close
                 </button>
               </div>
             </motion.div>

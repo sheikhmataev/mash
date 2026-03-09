@@ -17,9 +17,13 @@ export default function CustomCursor() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (window.innerWidth <= 768) return;
+    const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const forcedColors = window.matchMedia('(forced-colors: active)').matches;
+    if (!hasFinePointer || reduceMotion || forcedColors || window.innerWidth <= 768) return;
 
     const selector = 'a, button, [data-cursor-grow]';
+    document.body.classList.add('custom-cursor-enabled');
 
     const moveCursor = (e: MouseEvent) => {
       cursorX.set(e.clientX - 16);
@@ -46,6 +50,7 @@ export default function CustomCursor() {
     document.addEventListener('mouseout', handleMouseOut);
 
     return () => {
+      document.body.classList.remove('custom-cursor-enabled');
       window.removeEventListener('mousemove', moveCursor);
       document.removeEventListener('mouseover', handleMouseOver);
       document.removeEventListener('mouseout', handleMouseOut);

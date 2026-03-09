@@ -31,28 +31,10 @@
   --font-body: var(--font-inter);
 }
 
-/* Hide native cursor on desktop using a transparent 1x1 image.
-   cursor:none flickers during React/Framer re-renders; a transparent
-   image is handled smoothly by all browsers. */
-html,
-body,
-body * {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E") 0 0, none !important;
-}
-
-/* Show native cursor on mobile */
-@media (max-width: 768px) {
-  html,
-  body,
-  body * {
-    cursor: auto !important;
-  }
-}
-
-/* When live preview is open, allow cursor inside overlay only */
-body.live-preview-open .live-preview-overlay,
-body.live-preview-open .live-preview-overlay * {
-  cursor: auto !important;
+/* Opt-in cursor replacement only when custom cursor is active. */
+body.custom-cursor-enabled,
+body.custom-cursor-enabled * {
+  cursor: none !important;
 }
 
 /* Hide custom cursor layer when preview is open */
@@ -192,6 +174,10 @@ body {
   padding: 120px 0;
 }
 
+section[id] {
+  scroll-margin-top: 110px;
+}
+
 @media (max-width: 768px) {
   .section-padding {
     padding: 80px 0;
@@ -199,9 +185,14 @@ body {
 }
 
 /* ─── Focus styles ─── */
-input:focus, textarea:focus, button:focus-visible, a:focus-visible {
-  outline: 1px solid rgba(123, 97, 255, 0.4);
-  outline-offset: 2px;
+input:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a:focus-visible,
+[role='button']:focus-visible {
+  outline: 2px solid rgba(240, 240, 245, 0.95);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px rgba(123, 97, 255, 0.28);
 }
 
 /* ─── Smooth link transitions ─── */
@@ -238,5 +229,23 @@ a {
   .animate-spin-slow,
   .animate-pulse-glow {
     animation-duration: 14s !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .custom-cursor-layer {
+    display: none !important;
   }
 }

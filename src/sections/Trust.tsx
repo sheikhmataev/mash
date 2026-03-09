@@ -17,7 +17,7 @@ export default function Trust() {
   const sliderDuration = lowMotion ? 34 : 24;
 
   return (
-    <section className="section-padding relative overflow-hidden">
+    <section id="partners" className="section-padding relative overflow-hidden">
       <div className="absolute inset-0">
         <div
           className="absolute left-1/2 top-1/2 h-[540px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20 blur-[130px]"
@@ -76,6 +76,7 @@ export default function Trust() {
             duration={sliderDuration}
             durationOnHover={sliderDuration + 10}
             reverse
+            paused={prefersReducedMotion}
             className="w-full"
           >
             {PARTNERS.map((partner) => (
