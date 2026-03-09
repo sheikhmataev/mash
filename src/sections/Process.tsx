@@ -65,18 +65,27 @@ export default function Process() {
           transition={{ delay: 0.12, duration: lowMotion ? 0.45 : 0.9 }}
           className="glass glow-border rounded-2xl"
         >
-          <div className="relative w-full overflow-hidden rounded-2xl aspect-[5/4] max-h-[70vh] min-h-[280px] sm:aspect-auto sm:h-[400px] md:h-[520px]">
+          <div className="relative h-[clamp(360px,72vh,500px)] w-full overflow-hidden rounded-2xl sm:aspect-auto sm:h-[400px] md:h-[520px]">
             {processReady ? (
-              <SplineHero
-                scene="/Process.splinecode"
-                className="h-full w-full"
-                playOnlyWhenInView
-                deferLoad
-                mobileFitContain
-                mobileScaleDesignWidth={460}
-                mobileScaleMin={0.64}
-                mobileScaleBreakpoint={768}
-              />
+              <>
+                <div className="absolute right-3 top-3 z-20 rounded-full border border-white/15 bg-bg-deep/75 px-3 py-1 text-[10px] tracking-[0.14em] text-text-secondary uppercase md:hidden">
+                  Drag / Scroll
+                </div>
+                <div
+                  className="mobile-swipe-track h-full w-full overflow-scroll overscroll-contain md:overflow-hidden"
+                  style={{ touchAction: 'pan-x pan-y' }}
+                >
+                  <div className="h-[760px] w-[860px] min-h-full min-w-full md:h-full md:w-full">
+                    <SplineHero
+                      scene="/Process.splinecode"
+                      className="h-full w-full"
+                      playOnlyWhenInView
+                      deferLoad
+                      disablePointerEvents
+                    />
+                  </div>
+                </div>
+              </>
             ) : (
               <div className="shimmer absolute inset-0 flex items-center justify-center bg-bg-surface/35">
                 <div className="rounded-full border border-accent-violet/20 px-4 py-2 text-xs tracking-[0.2em] text-text-secondary uppercase">

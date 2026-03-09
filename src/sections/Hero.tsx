@@ -12,9 +12,7 @@ export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const [isMobile, setIsMobile] = useState(
-    () => (typeof window !== 'undefined' ? window.innerWidth < 768 : false),
-  );
+  const [isMobile, setIsMobile] = useState(false);
 
   const springConfig = { damping: 30, stiffness: 80 };
   const x = useSpring(mouseX, springConfig);
@@ -27,11 +25,13 @@ export default function Hero() {
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
     window.addEventListener('resize', handleResize, { passive: true });
-    if (isMobile) {
-      return () => window.removeEventListener('resize', handleResize);
-    }
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
+  useEffect(() => {
+    if (isMobile) return;
     const handleMouse = (e: MouseEvent) => {
       const cx = window.innerWidth / 2;
       const cy = window.innerHeight / 2;
@@ -41,7 +41,6 @@ export default function Hero() {
 
     window.addEventListener('mousemove', handleMouse);
     return () => {
-      window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouse);
     };
   }, [isMobile, mouseX, mouseY]);

@@ -7,8 +7,6 @@ import Capabilities from '@/sections/Capabilities';
 import HowWeThink from '@/sections/HowWeThink';
 import Projects from '@/sections/Projects';
 import Process from '@/sections/Process';
-import AILab from '@/sections/AILab';
-import TechStack from '@/sections/TechStack';
 import Trust from '@/sections/Trust';
 import About from '@/sections/About';
 import CTA from '@/sections/CTA';
@@ -30,10 +28,6 @@ export default function Home() {
         <Projects />
         <SectionDivider flip />
         <Process />
-        <SectionDivider />
-        <AILab />
-        <SectionDivider flip />
-        <TechStack />
         <SectionDivider />
         <Trust />
         <SectionDivider flip />

@@ -5,12 +5,11 @@ import { motion } from 'framer-motion';
 import { PHILOSOPHY } from '@/lib/constants';
 
 export default function HowWeThink() {
-  const [isMobile, setIsMobile] = useState(
-    () => (typeof window !== 'undefined' ? window.innerWidth < 768 : false),
-  );
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
+    onResize();
     window.addEventListener('resize', onResize, { passive: true });
     return () => window.removeEventListener('resize', onResize);
   }, []);

@@ -6,12 +6,11 @@ import ParticleOverlay from '@/components/ParticleOverlay';
 
 export default function DeferredVisualEffects() {
   const [ready, setReady] = useState(false);
-  const [isMobile, setIsMobile] = useState(
-    () => (typeof window !== 'undefined' ? window.innerWidth < 768 : false),
-  );
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
+    onResize();
     window.addEventListener('resize', onResize, { passive: true });
     return () => window.removeEventListener('resize', onResize);
   }, []);

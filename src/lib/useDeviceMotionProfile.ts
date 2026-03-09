@@ -3,14 +3,8 @@
 import { useEffect, useState } from 'react';
 
 export function useDeviceMotionProfile() {
-  const [isMobileLike, setIsMobileLike] = useState(
-    () =>
-      typeof window !== 'undefined' &&
-      (window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches),
-  );
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  );
+  const [isMobileLike, setIsMobileLike] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => {
     const mobileQuery = window.matchMedia('(pointer: coarse)');

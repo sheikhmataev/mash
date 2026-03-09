@@ -23,8 +23,11 @@ export default function SplineHero({
   deferLoad = false,
   mobileFitContain = false,
   mobileScaleDesignWidth = 420,
+  mobileScaleDesignHeight,
   mobileScaleMin = 0.72,
   mobileScaleBreakpoint = 768,
+  mobileScaleOrigin = 'center',
+  disablePointerEvents = false,
 }: {
   scene?: string;
   className?: string;
@@ -32,16 +35,18 @@ export default function SplineHero({
   deferLoad?: boolean;
   mobileFitContain?: boolean;
   mobileScaleDesignWidth?: number;
+  mobileScaleDesignHeight?: number;
   mobileScaleMin?: number;
   mobileScaleBreakpoint?: number;
+  mobileScaleOrigin?: string;
+  disablePointerEvents?: boolean;
 }) {
   const [loaded, setLoaded] = useState(false);
   const [isInView, setIsInView] = useState(!playOnlyWhenInView);
   const [shouldLoad, setShouldLoad] = useState(!deferLoad);
-  const [isMobile, setIsMobile] = useState(() =>
-    typeof window !== 'undefined' ? window.innerWidth < mobileScaleBreakpoint : false,
-  );
+  const [isMobile, setIsMobile] = useState(false);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isInViewRef = useRef(isInView);
@@ -69,23 +74,27 @@ export default function SplineHero({
     const element = containerRef.current;
     if (!element) return;
 
-    const updateWidth = (width: number) => {
-      setContainerWidth((prev) => {
+    const updateSize = (width: number, height: number) => {
+      setContainerWidth((prevWidth) => {
         const rounded = Math.round(width);
-        return prev === rounded ? prev : rounded;
+        return prevWidth === rounded ? prevWidth : rounded;
+      });
+      setContainerHeight((prevHeight) => {
+        const rounded = Math.round(height);
+        return prevHeight === rounded ? prevHeight : rounded;
       });
     };
 
-    updateWidth(element.clientWidth);
+    updateSize(element.clientWidth, element.clientHeight);
 
     if (typeof ResizeObserver === 'undefined') {
-      const onResize = () => updateWidth(element.clientWidth);
+      const onResize = () => updateSize(element.clientWidth, element.clientHeight);
       window.addEventListener('resize', onResize, { passive: true });
       return () => window.removeEventListener('resize', onResize);
     }
 
     const resizeObserver = new ResizeObserver(([entry]) => {
-      updateWidth(entry.contentRect.width);
+      updateSize(entry.contentRect.width, entry.contentRect.height);
     });
     resizeObserver.observe(element);
     return () => resizeObserver.disconnect();
@@ -201,10 +210,15 @@ export default function SplineHero({
 
   const mobileScale = (() => {
     if (!mobileFitContain || !isMobile) return 1;
-    const width = containerWidth || (typeof window !== 'undefined' ? window.innerWidth : 0);
+    const width = containerWidth;
+    const height = containerHeight || 0;
     if (!width || !mobileScaleDesignWidth) return 1;
+    const widthFit = width / mobileScaleDesignWidth;
+    const heightFit =
+      mobileScaleDesignHeight && height ? height / mobileScaleDesignHeight : 1;
     const clampedMin = Math.min(Math.max(mobileScaleMin, 0.2), 1);
-    return Math.min(1, Math.max(clampedMin, width / mobileScaleDesignWidth));
+    const fitScale = Math.min(widthFit, heightFit);
+    return Math.min(1, Math.max(clampedMin, fitScale));
   })();
 
   return (
@@ -220,7 +234,9 @@ export default function SplineHero({
           width: '100%',
           height: '100%',
           transform: `scale(${mobileScale})`,
-          transformOrigin: 'center',
+          transformOrigin:
+            mobileFitContain && isMobile ? mobileScaleOrigin : 'center',
+          pointerEvents: disablePointerEvents ? 'none' : 'auto',
           opacity: loaded ? 1 : 0,
           transition: 'opacity 1s ease, transform 240ms ease-out',
         }}
