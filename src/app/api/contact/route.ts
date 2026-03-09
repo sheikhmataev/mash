@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { data, error } = await resend.emails.send({
+    const { data: internalData, error: internalError } = await resend.emails.send({
       from: contactFromEmail,
       to: recipients,
       replyTo: email,
@@ -54,16 +54,21 @@ export async function POST(req: Request) {
       ].join('\n'),
     });
 
-    if (error) {
+    if (internalError) {
       return NextResponse.json(
-        { error: 'Email provider rejected the message. Please try again.' },
+        {
+          error: 'Email provider rejected the internal notification.',
+          details:
+            typeof internalError === 'object' && internalError !== null && 'message' in internalError
+              ? String((internalError as { message?: string }).message)
+              : undefined,
+        },
         { status: 502 },
       );
     }
 
     // Best-effort customer confirmation email.
-    // If this fails, we still keep the successful internal delivery.
-    await resend.emails.send({
+    const { data: confirmationData, error: confirmationError } = await resend.emails.send({
       from: contactFromEmail,
       to: email,
       subject: 'We received your message',
@@ -84,7 +89,18 @@ export async function POST(req: Request) {
       ].join('\n'),
     });
 
-    return NextResponse.json({ ok: true, messageId: data?.id ?? null });
+    return NextResponse.json({
+      ok: true,
+      internalMessageId: internalData?.id ?? null,
+      confirmationMessageId: confirmationData?.id ?? null,
+      confirmationAccepted: !confirmationError,
+      confirmationError:
+        confirmationError &&
+        typeof confirmationError === 'object' &&
+        'message' in confirmationError
+          ? String((confirmationError as { message?: string }).message)
+          : null,
+    });
   } catch {
     return NextResponse.json(
       { error: 'Unable to send message right now. Please try again.' },
