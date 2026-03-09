@@ -5,12 +5,49 @@ import { motion } from 'framer-motion';
 
 export default function CTA() {
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    e.currentTarget.reset();
-    setSubmitted(true);
-    window.setTimeout(() => setSubmitted(false), 3000);
+    if (isSubmitting) return;
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const payload = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      company: formData.get('company'),
+      vision: formData.get('vision'),
+      consent: formData.get('consent') === 'on',
+    };
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const data = (await response.json().catch(() => null)) as
+          | { error?: string }
+          | null;
+        setSubmitError(data?.error || 'Something went wrong. Please try again.');
+        return;
+      }
+
+      form.reset();
+      setSubmitted(true);
+      window.setTimeout(() => setSubmitted(false), 3000);
+    } catch {
+      setSubmitError('Could not send right now. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -148,14 +185,22 @@ export default function CTA() {
 
             <button
               type="submit"
+              disabled={isSubmitting}
               className="group relative mt-2 w-full overflow-hidden rounded-lg bg-accent-violet py-3.5 text-sm font-medium text-white transition-all duration-500 hover:shadow-[0_0_30px_rgba(123,97,255,0.35)]"
             >
-              <span className="relative z-10">{submitted ? 'Message Sent' : 'Send Message'}</span>
+              <span className="relative z-10">
+                {isSubmitting ? 'Sending...' : submitted ? 'Message Sent' : 'Send Message'}
+              </span>
               <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
             </button>
             {submitted && (
               <p className="text-center text-xs tracking-wide text-accent-cyan" role="status" aria-live="polite">
                 Thanks! We received your message and will get back to you.
+              </p>
+            )}
+            {submitError && (
+              <p className="text-center text-xs tracking-wide text-red-300" role="alert">
+                {submitError}
               </p>
             )}
           </div>

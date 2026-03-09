@@ -35,9 +35,7 @@ export default function ProcessMobileFlow({ reducedMotion }: ProcessMobileFlowPr
           const isLast = index === PROCESS_PIPELINE_LABELS.length - 1;
           const alignRight = index % 2 === 1;
           const downStart = index * STAGGER;
-          const downEnd = downStart + TRAVEL_DURATION;
           const upStart = upPhaseStart + (connectorCount - 1 - index) * STAGGER;
-          const upEnd = upStart + TRAVEL_DURATION;
 
           return (
             <motion.li
