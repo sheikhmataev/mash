@@ -97,6 +97,15 @@ export const PROCESS_STEPS = [
   { title: 'Deploy & Evolve', description: 'Launch, monitor, and continuously optimize.' },
 ] as const;
 
+export const PROCESS_PIPELINE_LABELS = [
+  'UNIFY PRODUCT, DESIGN & ENGINEERING',
+  'ENTERPRISE-GRADE RELIABILITY',
+  'COLLABORATIVE DELIVERY PARTNERSHIP',
+  'RAPID EXECUTION & SCALABLE SUPPORT',
+  'AI ACCELERATION WITHOUT OVERHEAD',
+  'Engineered to scale with your ambition',
+] as const;
+
 export const LAB_ENTRIES = [
   {
     title: 'AI Workflow Engine',

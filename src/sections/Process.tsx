@@ -4,6 +4,7 @@ import { useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import VideoPlaceholder from '@/components/VideoPlaceholder';
 import dynamic from 'next/dynamic';
+import ProcessMobileFlow from '@/components/ProcessMobileFlow';
 import { usePredictiveSectionReady } from '@/lib/usePredictiveSectionReady';
 import { useDeviceMotionProfile } from '@/lib/useDeviceMotionProfile';
 
@@ -65,12 +66,17 @@ export default function Process() {
           transition={{ delay: 0.12, duration: lowMotion ? 0.45 : 0.9 }}
           className="glass glow-border rounded-2xl"
         >
-          <div className="relative h-[clamp(360px,72vh,500px)] w-full overflow-hidden rounded-2xl sm:aspect-auto sm:h-[400px] md:h-[520px]">
+          <div
+            className={`relative w-full overflow-hidden rounded-2xl sm:aspect-auto md:h-[520px] ${
+              isMobileLike
+                ? 'h-auto'
+                : 'h-[clamp(360px,72vh,500px)] sm:h-[400px]'
+            }`}
+          >
             {processReady ? (
-              <>
-                <div className="absolute right-3 top-3 z-20 rounded-full border border-white/15 bg-bg-deep/75 px-3 py-1 text-[10px] tracking-[0.14em] text-text-secondary uppercase md:hidden">
-                  Drag / Scroll
-                </div>
+              isMobileLike ? (
+                <ProcessMobileFlow reducedMotion={prefersReducedMotion} />
+              ) : (
                 <div
                   className="h-full w-full overflow-hidden"
                   style={{ touchAction: 'pan-y' }}
@@ -80,14 +86,14 @@ export default function Process() {
                       scene="/Process.splinecode"
                       className="h-full w-full"
                       playOnlyWhenInView
-                      replayEveryMs={lowMotion ? 0 : 11000}
-                      replayDelayMs={lowMotion ? 0 : 120}
+                      replayEveryMs={prefersReducedMotion ? 0 : 11000}
+                      replayDelayMs={prefersReducedMotion ? 0 : 120}
                       deferLoad
                       disablePointerEvents
                     />
                   </div>
                 </div>
-              </>
+              )
             ) : (
               <div className="shimmer absolute inset-0 flex items-center justify-center bg-bg-surface/35">
                 <div className="rounded-full border border-accent-violet/20 px-4 py-2 text-xs tracking-[0.2em] text-text-secondary uppercase">
