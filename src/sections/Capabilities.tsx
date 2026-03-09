@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { gsap } from '@/lib/animations';
 import { CAPABILITIES } from '@/lib/constants';
 import VideoPlaceholder from '@/components/VideoPlaceholder';
-import { usePredictiveSectionReady } from '@/lib/usePredictiveSectionReady';
 import { useDeviceMotionProfile } from '@/lib/useDeviceMotionProfile';
 
 export default function Capabilities() {
@@ -13,9 +12,6 @@ export default function Capabilities() {
   const lowMotion = isMobileLike || prefersReducedMotion;
   const sectionRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const capabilitiesReady = usePredictiveSectionReady(sectionRef, {
-    rootMargin: '900px 0px',
-  });
   const [enablePinnedScroll, setEnablePinnedScroll] = useState(false);
 
   useEffect(() => {
@@ -30,7 +26,7 @@ export default function Capabilities() {
   }, []);
 
   useEffect(() => {
-    if (!enablePinnedScroll || !capabilitiesReady) return;
+    if (!enablePinnedScroll) return;
     if (!sectionRef.current || !scrollRef.current) return;
 
     const cards = Array.from(
@@ -71,7 +67,7 @@ export default function Capabilities() {
       tween.scrollTrigger?.kill();
       tween.kill();
     };
-  }, [enablePinnedScroll, capabilitiesReady, isMobileLike]);
+  }, [enablePinnedScroll, isMobileLike]);
 
   return (
     <section
@@ -118,66 +114,45 @@ export default function Capabilities() {
           {/* Spacer for header */}
           <div className={`${enablePinnedScroll ? 'w-[10vw] md:w-[120px]' : 'w-[7.5vw]'} shrink-0`} />
 
-          {capabilitiesReady
-            ? CAPABILITIES.map((cap, i) => (
-                <motion.div
-                  key={cap.title}
-                  data-cap-card="true"
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: lowMotion ? i * 0.03 : i * 0.08, duration: lowMotion ? 0.4 : 0.52 }}
-                  className={`group glass glow-border relative shrink-0 overflow-hidden p-8 transition-all duration-500 hover:bg-[rgba(23,26,33,0.8)] ${
-                    enablePinnedScroll
-                      ? 'w-[82vw] max-w-[360px] md:w-[52vw] lg:w-[360px]'
-                      : 'w-[85vw] max-w-[360px] snap-center'
-                  }`}
-                >
-                  <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl border border-accent-violet/20 bg-accent-violet/5 text-2xl text-accent-violet transition-all duration-500 group-hover:bg-accent-violet/10 group-hover:shadow-[0_0_20px_rgba(123,97,255,0.15)]">
-                    {cap.icon}
-                  </div>
+          {CAPABILITIES.map((cap, i) => (
+            <motion.div
+              key={cap.title}
+              data-cap-card="true"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: lowMotion ? i * 0.03 : i * 0.08, duration: lowMotion ? 0.4 : 0.52 }}
+              className={`group glass glow-border relative shrink-0 overflow-hidden p-8 transition-colors duration-500 hover:bg-[rgba(23,26,33,0.8)] ${
+                enablePinnedScroll
+                  ? 'w-[82vw] max-w-[360px] md:w-[52vw] lg:w-[360px]'
+                  : 'w-[85vw] max-w-[360px] snap-center'
+              }`}
+            >
+              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl border border-accent-violet/20 bg-accent-violet/5 text-2xl text-accent-violet transition-all duration-500 group-hover:bg-accent-violet/10 group-hover:shadow-[0_0_20px_rgba(123,97,255,0.15)]">
+                {cap.icon}
+              </div>
 
-                  <h3 className="font-[family-name:var(--font-space-grotesk)] text-xl font-semibold text-text-primary">
-                    {cap.title}
-                  </h3>
-                  <p className="mt-1 text-sm text-accent-violet/70">{cap.subtitle}</p>
+              <h3 className="font-[family-name:var(--font-space-grotesk)] text-xl font-semibold text-text-primary">
+                {cap.title}
+              </h3>
+              <p className="mt-1 text-sm text-accent-violet/70">{cap.subtitle}</p>
 
-                  <div className="mt-4 max-h-40 overflow-hidden opacity-100 transition-all duration-500 md:max-h-0 md:opacity-0 md:group-hover:max-h-40 md:group-hover:opacity-100">
-                    <p className="text-sm leading-relaxed text-text-secondary">
-                      {cap.description}
-                    </p>
-                  </div>
+              <div className="mt-4 min-h-[96px]">
+                <p className="text-sm leading-relaxed text-text-secondary">
+                  {cap.description}
+                </p>
+              </div>
 
-                  <div className="mt-6 h-[1px] w-full bg-gradient-to-r from-accent-violet/20 via-accent-blue/10 to-transparent" />
+              <div className="mt-6 h-[1px] w-full bg-gradient-to-r from-accent-violet/20 via-accent-blue/10 to-transparent" />
 
-                  <div className="mt-4 flex items-center gap-2 text-xs text-text-muted transition-colors duration-300 group-hover:text-accent-violet">
-                    <span>Explore</span>
-                    <svg className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </motion.div>
-              ))
-            : Array.from({ length: 3 }).map((_, i) => (
-                <div
-                  key={`cap-skeleton-${i}`}
-                  data-cap-card="true"
-                  className={`glass shimmer relative shrink-0 overflow-hidden p-8 ${
-                    enablePinnedScroll
-                      ? 'w-[82vw] max-w-[360px] md:w-[52vw] lg:w-[360px]'
-                      : 'w-[85vw] max-w-[360px] snap-center'
-                  }`}
-                >
-                  <div className="mb-6 h-14 w-14 rounded-xl border border-accent-violet/15 bg-accent-violet/8" />
-                  <div className="h-5 w-2/3 rounded bg-white/10" />
-                  <div className="mt-2 h-4 w-1/2 rounded bg-white/8" />
-                  <div className="mt-4 space-y-2">
-                    <div className="h-3 w-full rounded bg-white/8" />
-                    <div className="h-3 w-5/6 rounded bg-white/8" />
-                    <div className="h-3 w-4/6 rounded bg-white/8" />
-                  </div>
-                </div>
-              ))}
+              <div className="mt-4 flex items-center gap-2 text-xs text-text-muted transition-colors duration-300 group-hover:text-accent-violet">
+                <span>Explore</span>
+                <svg className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </motion.div>
+          ))}
 
           {/* Trailing spacer so last card can fully enter viewport */}
           <div className={`${enablePinnedScroll ? 'w-[28vw] md:w-[180px]' : 'w-[7.5vw]'} shrink-0`} />
