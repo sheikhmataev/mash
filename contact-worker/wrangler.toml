@@ -1,0 +1,6 @@
+name = "mash-contact"
+main = "src/index.ts"
+compatibility_date = "2025-03-10"
+
+[vars]
+ALLOWED_ORIGIN = "https://mashpartners.no"

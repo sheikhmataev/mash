@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
+const CONTACT_ENDPOINT = process.env.NEXT_PUBLIC_CONTACT_ENDPOINT;
+
 export default function CTA() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,16 +28,22 @@ export default function CTA() {
     setSubmitError(null);
 
     try {
-      const response = await fetch('/api/contact', {
+      if (!CONTACT_ENDPOINT) {
+        setSubmitError('Contact endpoint is not configured.');
+        return;
+      }
+
+      const response = await fetch(CONTACT_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        const data = (await response.json().catch(() => null)) as
-          | { error?: string }
-          | null;
+      const data = (await response.json().catch(() => null)) as
+        | { ok?: boolean; error?: string }
+        | null;
+
+      if (!response.ok || !data?.ok) {
         setSubmitError(data?.error || 'Something went wrong. Please try again.');
         return;
       }
