@@ -17,6 +17,27 @@ function toSafeString(value: unknown) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+function normalizeOrigin(origin: string) {
+  const trimmed = origin.trim();
+  if (!trimmed) return '';
+  return trimmed.endsWith('/') ? trimmed.slice(0, -1) : trimmed;
+}
+
+function getAllowedOriginHeader(request: Request, allowedOriginVar?: string) {
+  const requestOrigin = normalizeOrigin(request.headers.get('Origin') || '');
+  const allowedRaw = toSafeString(allowedOriginVar) || '*';
+
+  if (allowedRaw === '*') return requestOrigin || '*';
+
+  const allowedOrigins = allowedRaw
+    .split(',')
+    .map((item) => normalizeOrigin(item))
+    .filter(Boolean);
+
+  if (!requestOrigin) return allowedOrigins[0] || '*';
+  return allowedOrigins.includes(requestOrigin) ? requestOrigin : '';
+}
+
 function jsonResponse(body: unknown, status = 200, origin = '*') {
   return new Response(JSON.stringify(body), {
     status,
@@ -25,6 +46,7 @@ function jsonResponse(body: unknown, status = 200, origin = '*') {
       'Access-Control-Allow-Origin': origin,
       'Access-Control-Allow-Headers': 'Content-Type',
       'Access-Control-Allow-Methods': 'POST,OPTIONS',
+      Vary: 'Origin',
     },
   });
 }
@@ -70,19 +92,24 @@ async function sendResendEmail(
 
 export default {
   async fetch(request: Request, env: Env) {
-    const allowedOrigin = env.ALLOWED_ORIGIN || '*';
-    const requestOrigin = request.headers.get('Origin') || '';
-    const origin =
-      allowedOrigin === '*' || requestOrigin === allowedOrigin
-        ? requestOrigin || allowedOrigin
-        : allowedOrigin;
+    const origin = getAllowedOriginHeader(request, env.ALLOWED_ORIGIN);
 
     if (request.method === 'OPTIONS') {
+      if (!origin) {
+        return jsonResponse({ error: 'Origin not allowed' }, 403, '*');
+      }
       return jsonResponse({ ok: true }, 204, origin);
     }
 
     if (request.method !== 'POST') {
+      if (!origin) {
+        return jsonResponse({ error: 'Origin not allowed' }, 403, '*');
+      }
       return jsonResponse({ error: 'Method not allowed' }, 405, origin);
+    }
+
+    if (!origin) {
+      return jsonResponse({ error: 'Origin not allowed' }, 403, '*');
     }
 
     if (!env.RESEND_API_KEY || !env.CONTACT_FROM_EMAIL || !env.CONTACT_TO_EMAIL) {
