@@ -98,7 +98,7 @@ export default {
       if (!origin) {
         return jsonResponse({ error: 'Origin not allowed' }, 403, '*');
       }
-      return jsonResponse({ ok: true }, 204, origin);
+      return jsonResponse({ ok: true }, 200, origin);
     }
 
     if (request.method !== 'POST') {
