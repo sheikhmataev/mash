@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
-const CONTACT_ENDPOINT = process.env.NEXT_PUBLIC_CONTACT_ENDPOINT;
+const CONTACT_ENDPOINT =
+  process.env.NEXT_PUBLIC_CONTACT_ENDPOINT?.trim() ||
+  'https://mash-contact.mataevbilal.workers.dev';
 
 export default function CTA() {
   const [submitted, setSubmitted] = useState(false);
