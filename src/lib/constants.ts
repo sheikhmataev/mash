@@ -71,7 +71,7 @@ export const PROJECTS = [
     title: 'Kronomods',
     tags: ['Luxury', 'E-Commerce', 'Brand'],
     description: 'Fine timekeeping storefront with premium visual language and polished product storytelling.',
-    url: 'https://sheikhmataev.github.io/kronomods/',
+    url: 'https://kronomods.no',
     previewImage: '/assets/kronomods.webp',
   },
   {
